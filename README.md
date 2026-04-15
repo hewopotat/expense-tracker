@@ -1,6 +1,6 @@
-# BudgetPH — PWA
+# Expense Tracker
 
-A personal budget tracker for the Philippines, built as a Progressive Web App (PWA).
+A personal budget tracker, built as a Progressive Web App (PWA).
 
 ## Files
 
