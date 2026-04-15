@@ -316,7 +316,7 @@ load();
 // HELPERS
 // =====================================================================
 const php=(n)=>n===0?"—":"₱"+Math.abs(n).toLocaleString("en-PH",{minimumFractionDigits:2,maximumFractionDigits:2});
-const bankColor=(b)=>({Cash:"#64748b",BPI:"#1d4ed8",RCBC:"#b91c1c",UB:"#7c3aed",Maya:"#059669",Maribank:"#d97706"}[b]||"#64748b");
+const bankColor=(b)=>({Cash:"#64748b",BPI:"#b91c1c",RCBC:"#87CEEB",UB:"#FFA500",Maya:"#00FF00",Maribank:"#FFD580"}[b]||"#64748b");
 const uid=()=>Math.random().toString(36).slice(2,8);
 
 function totals(){
