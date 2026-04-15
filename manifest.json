@@ -1,0 +1,25 @@
+{
+  "name": "BudgetPH",
+  "short_name": "BudgetPH",
+  "description": "Personal budget tracker for the Philippines",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f0edf8",
+  "theme_color": "#6c3fc5",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["finance", "productivity"]
+}
