@@ -3,16 +3,23 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<!-- PWA core -->
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-<meta name="apple-mobile-web-app-title" content="Budget Tracker"/>
+<meta name="apple-mobile-web-app-title" content="BudgetPH"/>
+<meta name="application-name" content="BudgetPH"/>
 <meta name="theme-color" content="#6c3fc5"/>
-<meta name="description" content="Personal budget tracker"/>
+<meta name="description" content="Personal budget & debt tracker for the Philippines"/>
+<!-- Manifest -->
 <link rel="manifest" href="manifest.json"/>
-<!-- iOS splash / icons - GitHub Pages will serve from same folder -->
-<link rel="apple-touch-icon" href="icon-192.png"/>
-<title>💸🗒️</title>
+<!-- Apple icons -->
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png"/>
+<link rel="apple-touch-icon" sizes="192x192" href="icon-192.png"/>
+<!-- Favicon -->
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png"/>
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png"/>
+<title>BudgetPH – Budget & Debt Tracker</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
@@ -26,10 +33,22 @@
   --purple:#6c3fc5;--purple2:#8b5cf6;--purple-light:#ede9fb;
   --green:#10b981;--red:#ef4444;--blue:#3b82f6;--teal:#06b6d4;--gold:#f59e0b;
   --grad:linear-gradient(135deg,#6c3fc5 0%,#9333ea 100%);
-  --bpi:#1d4ed8;--rcbc:#b91c1c;--ub:#7c3aed;--maya:#059669;--mari:#d97706;--cash:#64748b;
+  --debt-grad:linear-gradient(135deg,#dc2626 0%,#f59e0b 100%);
+  --bpi:#b91c1c;--rcbc:#87CEEB;--ub:#FFA500;--maya:#00FF00;--mari:#FFD580;--cash:#64748b;
 }
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;overflow:hidden;}
 .app{display:flex;flex-direction:column;height:100vh;height:100dvh;}
+
+/* ===== APP-LEVEL TABS ===== */
+.app-tab-bar{display:flex;background:#1a1035;flex-shrink:0;}
+.app-tab{flex:1;padding:13px 8px 11px;border:none;background:none;color:rgba(255,255,255,.45);font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.07em;cursor:pointer;border-bottom:3px solid transparent;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:3px;}
+.app-tab .tab-icon{font-size:18px;}
+.app-tab.active{color:#fff;border-bottom-color:#fff;}
+.app-tab:first-child.active{border-bottom-color:#a78bfa;}
+.app-tab:last-child.active{border-bottom-color:#fca5a5;}
+
+/* ===== EXPENSE SECTION (original) ===== */
+
 .header{background:var(--grad);padding:14px 16px 0;flex-shrink:0;position:relative;overflow:hidden;}
 .header::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.08);}
 .header::after{content:'';position:absolute;top:20px;right:20px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.05);}
@@ -69,6 +88,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Plus J
 .content{flex:1;overflow-y:auto;padding:14px 12px;scrollbar-width:thin;scrollbar-color:#e4ddf5 transparent;background:var(--bg);}
 .content::-webkit-scrollbar{width:3px;}
 .content::-webkit-scrollbar-thumb{background:#cdc3ed;border-radius:2px;}
+.expense-section{display:flex;flex-direction:column;flex:1;overflow:hidden;min-height:0;}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:10px;box-shadow:0 2px 8px rgba(108,63,197,.05);}
 .card-title{font-weight:800;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;}
 .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
@@ -99,9 +119,11 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Plus J
 .expense-list{display:flex;flex-direction:column;gap:8px;}
 .expense-item{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:12px;box-shadow:0 1px 4px rgba(108,63,197,.04);transition:opacity .2s;}
 .expense-item.red-item .expense-name{color:var(--red);}
-.expense-header{display:flex;justify-content:space-between;align-items:flex-start;}
-.expense-name{font-size:13px;font-weight:600;color:var(--text);}
-.expense-amount{font-size:16px;font-weight:800;color:var(--purple);}
+.expense-header{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;width:100%;}
+.expense-header>div:first-child{flex:1;min-width:0;overflow:hidden;}
+.expense-header>div:last-child{flex-shrink:0;text-align:right;margin-left:8px;}
+.expense-name{font-size:13px;font-weight:600;color:var(--text);word-break:break-word;}
+.expense-amount{font-size:16px;font-weight:800;color:var(--purple);white-space:nowrap;}
 .expense-amount.zero{color:var(--text4);font-size:12px;font-weight:500;}
 .expense-meta{display:flex;gap:5px;align-items:center;flex-wrap:wrap;margin-top:4px;}
 .badge{font-size:10px;padding:2px 7px;border-radius:20px;font-weight:700;color:#fff;}
@@ -129,8 +151,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Plus J
 .total-bar{background:var(--purple-light);border:1px solid rgba(108,63,197,.15);border-radius:12px;padding:12px 14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;}
 .total-bar-label{font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;}
 .total-bar-value{font-size:18px;font-weight:800;color:var(--purple);}
-.item-actions{display:flex;gap:6px;margin-top:9px;padding-top:9px;border-top:1px solid var(--border);}
-.item-action-btn{flex:1;padding:6px 8px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text3);font-size:11px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;cursor:pointer;transition:all .2s;text-align:center;}
+.item-actions{display:flex;gap:6px;margin-top:9px;padding-top:9px;border-top:1px solid var(--border);width:100%;}
+.item-action-btn{flex:1;padding:6px 4px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text3);font-size:10px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.03em;cursor:pointer;transition:all .2s;text-align:center;min-width:0;overflow:hidden;}
 .item-action-btn:active{background:var(--border);}
 .item-action-btn.edit{color:var(--blue);border-color:rgba(59,130,246,.25);background:rgba(59,130,246,.05);}
 .item-action-btn.delete{color:var(--red);border-color:rgba(239,68,68,.25);background:rgba(239,68,68,.05);}
@@ -169,9 +191,10 @@ tfoot td{border-top:2px solid var(--border);font-weight:800;color:var(--purple);
 .separator{border:none;border-top:1px solid var(--border);margin:10px 0;}
 .consistent-badge{font-size:10px;color:var(--teal);font-weight:700;background:rgba(6,182,212,.08);border:1px solid rgba(6,182,212,.2);border-radius:4px;padding:1px 5px;margin-left:4px;}
 .autocalc-badge{font-size:10px;color:var(--gold);font-weight:700;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:4px;padding:1px 5px;margin-left:4px;}
-.cc-summary-toggle{width:100%;display:flex;justify-content:space-between;align-items:center;padding:7px 10px;margin-top:8px;background:rgba(108,63,197,.06);border:1px solid rgba(108,63,197,.15);border-radius:9px;cursor:pointer;font-size:11px;font-weight:700;color:var(--purple);font-family:'Plus Jakarta Sans',sans-serif;text-align:left;}
+.cc-summary-toggle{width:100%;display:flex;justify-content:space-between;align-items:center;padding:7px 10px;margin-top:8px;background:rgba(108,63,197,.06);border:1px solid rgba(108,63,197,.15);border-radius:9px;cursor:pointer;font-size:11px;font-weight:700;color:var(--purple);font-family:'Plus Jakarta Sans',sans-serif;text-align:left;overflow:hidden;}
+.cc-summary-toggle>span:first-child{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-right:6px;}
 .cc-summary-toggle:active{background:rgba(108,63,197,.12);}
-.cc-summary-toggle .chevron{transition:transform .25s;display:inline-block;font-style:normal;}
+.cc-summary-toggle .chevron{transition:transform .25s;display:inline-block;font-style:normal;flex-shrink:0;}
 .cc-summary-panel{display:none;margin-top:6px;background:var(--surface2);border:1px solid var(--border);border-radius:9px;overflow:hidden;}
 .cc-summary-panel.open{display:block;}
 .cc-summary-section{padding:8px 10px;border-bottom:1px solid var(--border);}
@@ -185,8 +208,6 @@ tfoot td{border-top:2px solid var(--border);font-weight:800;color:var(--purple);
 .cc-billing-tag{font-size:9px;padding:1px 5px;border-radius:3px;font-weight:700;margin-left:4px;}
 .cc-billing-tag.current{background:rgba(16,185,129,.12);color:#059669;}
 .cc-billing-tag.prev{background:rgba(245,158,11,.12);color:#b45309;}
-
-/* ===== FIRST-RUN / EMPTY STATE ===== */
 .empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;text-align:center;height:100%;}
 .empty-icon{font-size:56px;margin-bottom:16px;filter:drop-shadow(0 4px 12px rgba(108,63,197,.2));}
 .empty-title{font-size:20px;font-weight:800;color:var(--text);margin-bottom:8px;}
@@ -195,11 +216,102 @@ tfoot td{border-top:2px solid var(--border);font-weight:800;color:var(--purple);
 .empty-import-btn:active{opacity:.85;}
 .empty-skip-btn{background:transparent;color:var(--text3);border:1px solid var(--border);border-radius:14px;padding:12px 28px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;cursor:pointer;width:100%;max-width:280px;}
 .empty-skip-btn:active{background:var(--surface2);}
-
-/* ===== PWA install banner ===== */
 .pwa-banner{background:var(--surface);border-top:1px solid var(--border);padding:10px 14px;display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text2);font-weight:600;flex-shrink:0;}
 .pwa-banner-close{margin-left:auto;background:none;border:none;font-size:18px;cursor:pointer;color:var(--text3);line-height:1;}
 .pwa-install-btn{background:var(--grad);color:#fff;border:none;border-radius:8px;padding:6px 14px;font-size:12px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;cursor:pointer;white-space:nowrap;}
+
+/* ===== DEBT TRACKER SECTION ===== */
+.debt-section{display:flex;flex-direction:column;flex:1;overflow:hidden;}
+.debt-header{background:var(--debt-grad);padding:14px 16px 14px;flex-shrink:0;position:relative;overflow:hidden;}
+.debt-header::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.08);}
+.debt-header::after{content:'';position:absolute;top:20px;right:20px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.05);}
+.debt-header-top{display:flex;justify-content:space-between;align-items:center;position:relative;z-index:1;}
+.debt-logo{font-weight:800;font-size:20px;color:#fff;letter-spacing:-0.03em;}
+.debt-summary-row{display:flex;gap:8px;margin-top:12px;position:relative;z-index:1;}
+.debt-summary-box{flex:1;background:rgba(255,255,255,.15);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:8px 12px;text-align:center;}
+.debt-summary-label{font-size:9px;color:rgba(255,255,255,.65);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;}
+.debt-summary-value{font-size:15px;font-weight:800;color:#fff;margin-top:2px;}
+.debt-summary-sub{font-size:9px;color:rgba(255,255,255,.6);margin-top:1px;}
+
+.debt-nav{background:var(--surface);border-bottom:1px solid var(--border);display:flex;flex-shrink:0;box-shadow:0 1px 4px rgba(220,38,38,.06);}
+.debt-nav-btn{flex:1;padding:11px 8px;border:none;background:none;color:var(--text3);font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;}
+.debt-nav-btn.active{color:#dc2626;border-bottom-color:#dc2626;}
+
+.debt-content{flex:1;overflow-y:auto;padding:14px 12px;background:var(--bg);}
+
+/* debt-free date banner */
+.debt-free-banner{background:linear-gradient(135deg,#dc2626,#f59e0b);border-radius:14px;padding:16px;margin-bottom:12px;text-align:center;color:#fff;position:relative;overflow:hidden;}
+.debt-free-banner::before{content:'🎯';position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:40px;opacity:.25;}
+.debt-free-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;opacity:.8;margin-bottom:4px;}
+.debt-free-date{font-size:22px;font-weight:800;letter-spacing:-0.02em;}
+.debt-free-sub{font-size:11px;opacity:.75;margin-top:4px;}
+.debt-free-banner.paid-off{background:linear-gradient(135deg,#059669,#10b981);}
+.debt-free-banner.paid-off::before{content:'🎉';}
+
+/* strategy selector */
+.strategy-row{display:flex;gap:6px;margin-bottom:12px;}
+.strategy-btn{flex:1;padding:9px 6px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface);font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;font-weight:700;cursor:pointer;text-align:center;color:var(--text3);transition:all .2s;line-height:1.3;}
+.strategy-btn.active{border-color:#dc2626;background:rgba(220,38,38,.05);color:#dc2626;}
+.strategy-btn .strat-icon{font-size:16px;display:block;margin-bottom:3px;}
+.strategy-btn .strat-name{display:block;font-size:10px;text-transform:uppercase;letter-spacing:0.04em;}
+
+/* debt item card */
+.debt-item{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:10px;box-shadow:0 2px 8px rgba(220,38,38,.04);}
+.debt-item.next-target{border-color:#dc2626;border-width:2px;box-shadow:0 4px 16px rgba(220,38,38,.12);}
+.debt-item-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
+.debt-item-name{font-size:14px;font-weight:800;color:var(--text);}
+.debt-item-type{font-size:10px;color:var(--text3);font-weight:600;margin-top:2px;}
+.debt-item-balance{text-align:right;}
+.debt-item-balance-val{font-size:18px;font-weight:800;color:#dc2626;}
+.debt-item-balance-label{font-size:10px;color:var(--text4);margin-top:1px;}
+.debt-progress-bar{height:7px;background:var(--bg);border-radius:4px;overflow:hidden;margin-bottom:8px;}
+.debt-progress-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#dc2626,#f59e0b);transition:width .6s ease;}
+.debt-progress-fill.done{background:var(--green);}
+.debt-stats-row{display:flex;gap:6px;margin-bottom:10px;}
+.debt-stat{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:7px 9px;text-align:center;}
+.debt-stat-label{font-size:9px;color:var(--text4);font-weight:700;text-transform:uppercase;letter-spacing:0.05em;}
+.debt-stat-value{font-size:12px;font-weight:800;color:var(--text);margin-top:2px;}
+.debt-item-actions{display:flex;gap:6px;padding-top:9px;border-top:1px solid var(--border);}
+.next-target-badge{display:inline-flex;align-items:center;gap:4px;background:#dc2626;color:#fff;font-size:10px;font-weight:700;border-radius:6px;padding:3px 8px;margin-bottom:8px;}
+.debt-add-btn{width:100%;padding:12px;border-radius:12px;border:2px dashed rgba(220,38,38,.3);background:transparent;color:#dc2626;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;cursor:pointer;margin-top:4px;display:flex;align-items:center;justify-content:center;gap:6px;}
+.debt-add-btn:active{background:rgba(220,38,38,.04);}
+
+/* payoff plan */
+.payoff-plan-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+.payoff-plan-row:last-child{border-bottom:none;}
+.payoff-order{width:26px;height:26px;border-radius:50%;background:var(--debt-grad);color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.payoff-plan-info{flex:1;min-width:0;}
+.payoff-plan-name{font-size:13px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.payoff-plan-meta{font-size:10px;color:var(--text3);margin-top:2px;}
+.payoff-plan-date{font-size:12px;font-weight:800;color:#dc2626;white-space:nowrap;}
+
+/* extra payment input */
+.extra-payment-box{background:rgba(220,38,38,.04);border:1.5px solid rgba(220,38,38,.2);border-radius:12px;padding:12px 14px;margin-bottom:12px;}
+.extra-payment-label{font-size:10px;color:#dc2626;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;}
+.extra-payment-input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:9px;color:var(--text);padding:10px 12px;font-size:16px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;text-align:center;outline:none;}
+.extra-payment-input:focus{border-color:#dc2626;}
+.extra-hint{font-size:10px;color:var(--text4);text-align:center;margin-top:5px;}
+
+/* debt modal */
+.debt-modal-overlay{position:fixed;inset:0;background:rgba(26,16,53,.5);z-index:100;display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(2px);}
+.debt-modal{background:var(--surface);border:1px solid var(--border);border-radius:20px 20px 0 0;width:100%;max-height:88vh;overflow-y:auto;padding:20px 16px;padding-bottom:calc(20px + env(safe-area-inset-bottom));}
+.btn-danger{flex:1;padding:13px;border-radius:12px;border:none;background:linear-gradient(135deg,#dc2626,#ef4444);color:#fff;font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;cursor:pointer;}
+
+/* milestone */
+.milestone-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+.milestone-item:last-child{border-bottom:none;}
+.milestone-icon{font-size:24px;flex-shrink:0;}
+.milestone-info{flex:1;}
+.milestone-title{font-size:13px;font-weight:700;color:var(--text);}
+.milestone-desc{font-size:11px;color:var(--text3);margin-top:2px;}
+.milestone-check{font-size:18px;}
+/* reorder mode */
+.reorder-btn{background:var(--purple-light);border:1px solid rgba(108,63,197,.3);border-radius:20px;color:var(--purple);padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s;}
+.reorder-btn.active{background:var(--purple);color:#fff;border-color:var(--purple);}
+.move-btns{display:flex;flex-direction:column;gap:3px;margin-right:8px;flex-shrink:0;}
+.move-btn{width:28px;height:28px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);color:var(--text3);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;font-family:'Plus Jakarta Sans',sans-serif;}
+.move-btn:active{background:var(--purple-light);color:var(--purple);border-color:var(--purple);}
+.move-btn:disabled{opacity:.2;cursor:default;}
 </style>
 </head>
 <body>
@@ -208,40 +320,23 @@ tfoot td{border-top:2px solid var(--border);font-weight:800;color:var(--purple);
 
 <script>
 // =====================================================================
-// PWA SERVICE WORKER REGISTRATION
+// PWA
 // =====================================================================
 if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>{
-    navigator.serviceWorker.register('sw.js').catch(()=>{});
-  });
+  window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{});});
 }
-
-// =====================================================================
-// PWA INSTALL PROMPT
-// =====================================================================
 let deferredPrompt=null;
 window.addEventListener('beforeinstallprompt',e=>{
-  e.preventDefault();
-  deferredPrompt=e;
-  // Show install banner after render
-  setTimeout(showInstallBanner,1000);
+  e.preventDefault();deferredPrompt=e;setTimeout(showInstallBanner,1000);
 });
-
 function showInstallBanner(){
   if(!deferredPrompt)return;
   if(document.getElementById('pwaBanner'))return;
   const banner=document.createElement('div');
-  banner.id='pwaBanner';
-  banner.className='pwa-banner';
+  banner.id='pwaBanner';banner.className='pwa-banner';
   banner.innerHTML=`<span>📱</span><span>Add Budget Tracker to your home screen</span><button class="pwa-install-btn" id="pwaInstallBtn">Install</button><button class="pwa-banner-close" id="pwaBannerClose">×</button>`;
   document.querySelector('.app').appendChild(banner);
-  document.getElementById('pwaInstallBtn').addEventListener('click',async()=>{
-    if(!deferredPrompt)return;
-    deferredPrompt.prompt();
-    await deferredPrompt.userChoice;
-    deferredPrompt=null;
-    banner.remove();
-  });
+  document.getElementById('pwaInstallBtn').addEventListener('click',async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;banner.remove();});
   document.getElementById('pwaBannerClose').addEventListener('click',()=>banner.remove());
 }
 
@@ -251,26 +346,20 @@ function showInstallBanner(){
 const MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"];
 const SHORT=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 const BANKS=["Cash","BPI","RCBC","UB","Maya","Maribank"];
+const DEBT_TYPES=["Credit Card","Personal Loan","Car Loan","Student Loan","Home Loan","Other"];
 
 function getCurrentMonthIndex(){return new Date().getMonth();}
 function getCurrentYear(){return new Date().getFullYear();}
 
-// Empty defaults — no personal data hardcoded
-const EMPTY_YEAR_DATA={
-  items15:[],
-  items30:[],
-  installments:[],
-  income15:0,
-  income30:0
-};
-
+const EMPTY_YEAR_DATA={items15:[],items30:[],installments:[],income15:0,income30:0};
 const DEFAULT_CC_SETTINGS={
-  BPI: {cutoff:1,  minPayPct:0.05, minPayFlat:500},
-  RCBC:{cutoff:28, minPayPct:0.05, minPayFlat:500},
-  UB:  {cutoff:21, minPayPct:0.05, minPayFlat:500},
+  BPI:{cutoff:1,minPayPct:0.05,minPayFlat:500},
+  RCBC:{cutoff:28,minPayPct:0.05,minPayFlat:500},
+  UB:{cutoff:21,minPayPct:0.05,minPayFlat:500},
 };
 
 let state={
+  appTab:"expense", // "expense" or "debt"
   month:getCurrentMonthIndex(),
   year:getCurrentYear(),
   view:"dashboard",
@@ -282,30 +371,32 @@ let state={
   modal:null,
   settingsOpen:false,
   ccSettings:JSON.parse(JSON.stringify(DEFAULT_CC_SETTINGS)),
-  hasData:false  // tracks whether user has imported / added data
+  hasData:false,
+  reorderMode:false,
+  // Debt tracker state
+  debts:[],
+  debtStrategy:"snowball", // "snowball" or "avalanche"
+  debtExtraPayment:0,
+  debtView:"overview",
+  debtModal:null,
 };
 
 function getYearData(year){
   const y=String(year);
-  if(!state.yearData[y]){
-    state.yearData[y]=JSON.parse(JSON.stringify(EMPTY_YEAR_DATA));
-  }
+  if(!state.yearData[y]){state.yearData[y]=JSON.parse(JSON.stringify(EMPTY_YEAR_DATA));}
   return state.yearData[y];
 }
-
 function save(){try{localStorage.setItem("bph4",JSON.stringify(state));}catch(e){}}
 function load(){
   try{
     const d=localStorage.getItem("bph4");
     if(d){
-      const p=JSON.parse(d);
-      Object.assign(state,p);
-      // If any year has items, mark hasData
-      if(!state.hasData){
-        state.hasData=Object.values(state.yearData||{}).some(yd=>
-          (yd.items15&&yd.items15.length>0)||(yd.items30&&yd.items30.length>0)||(yd.installments&&yd.installments.length>0)
-        )||((state.subscriptions||[]).length>0);
-      }
+      const p=JSON.parse(d);Object.assign(state,p);
+      if(!state.hasData){state.hasData=Object.values(state.yearData||{}).some(yd=>(yd.items15&&yd.items15.length>0)||(yd.items30&&yd.items30.length>0)||(yd.installments&&yd.installments.length>0))||((state.subscriptions||[]).length>0);}
+      if(!state.debts)state.debts=[];
+      if(!state.debtStrategy)state.debtStrategy="snowball";
+      if(!state.debtExtraPayment)state.debtExtraPayment=0;
+      if(!state.debtView)state.debtView="overview";
     }
     getYearData(state.year);
   }catch(e){}
@@ -316,235 +407,253 @@ load();
 // HELPERS
 // =====================================================================
 const php=(n)=>n===0?"—":"₱"+Math.abs(n).toLocaleString("en-PH",{minimumFractionDigits:2,maximumFractionDigits:2});
-const bankColor=(b)=>({Cash:"#64748b",BPI:"#1d4ed8",RCBC:"#b91c1c",UB:"#7c3aed",Maya:"#059669",Maribank:"#d97706"}[b]||"#64748b");
+const phpShort=(n)=>{if(n>=1000000)return"₱"+(n/1000000).toFixed(1)+"M";if(n>=1000)return"₱"+(n/1000).toFixed(1)+"K";return"₱"+Math.abs(n).toFixed(0);};
+const bankColor=(b)=>({Cash:"#64748b",BPI:"#b91c1c",RCBC:"#87CEEB",UB:"#FFA500",Maya:"#00FF00",Maribank:"#FFD580"}[b]||"#64748b");
 const uid=()=>Math.random().toString(36).slice(2,8);
 
+// =====================================================================
+// EXPENSE HELPERS
+// =====================================================================
 function totals(){
-  const mi=state.month;
-  const yd=getYearData(state.year);
+  const mi=state.month;const yd=getYearData(state.year);
   const t15=(yd.items15||[]).reduce((s,i)=>s+(i.amounts[mi]||0),0);
   const t30=(yd.items30||[]).reduce((s,i)=>s+(i.amounts[mi]||0),0);
   const tInst=(yd.installments||[]).reduce((s,i)=>s+(i.amounts[mi]||0),0);
   const tSubs=(state.subscriptions||[]).reduce((s,i)=>s+i.monthlyAmount,0);
-  const rem15=yd.income15-t15;
-  const rem30=yd.income30-t30-tInst-tSubs;
-  const totalExp=t15+t30+tInst+tSubs;
-  const totalInc=yd.income15+yd.income30;
+  const rem15=yd.income15-t15;const rem30=yd.income30-t30-tInst-tSubs;
+  const totalExp=t15+t30+tInst+tSubs;const totalInc=yd.income15+yd.income30;
   return{t15,t30,tInst,tSubs,rem15,rem30,totalExp,totalInc,netSavings:totalInc-totalExp};
 }
-
 function bankTotals(){
-  const mi=state.month;
-  const yd=getYearData(state.year);
-  const map={};
-  [...(yd.items15||[]),...(yd.items30||[]),...(yd.installments||[])].forEach(item=>{
-    const b=item.bank||"Cash";if(!map[b])map[b]=0;map[b]+=(item.amounts[mi]||0);
-  });
+  const mi=state.month;const yd=getYearData(state.year);const map={};
+  [...(yd.items15||[]),...(yd.items30||[]),...(yd.installments||[])].forEach(item=>{const b=item.bank||"Cash";if(!map[b])map[b]=0;map[b]+=(item.amounts[mi]||0);});
   (state.subscriptions||[]).forEach(s=>{if(!map[s.bank])map[s.bank]=0;map[s.bank]+=s.monthlyAmount;});
   return map;
 }
-
 function paidKey(id,year,mi){return id+"_"+year+"_"+mi;}
 function isPaid(id,mi){return !!(state.paid||{})[paidKey(id,state.year,mi)];}
 function togglePaid(id,mi){const k=paidKey(id,state.year,mi);if(!state.paid)state.paid={};state.paid[k]=!state.paid[k];save();render();}
-function paidCount(items,mi){return (items||[]).filter(i=>isPaid(i.id,mi)&&(i.amounts?i.amounts[mi]:i.monthlyAmount)>0).length;}
-function activeCount(items,mi){return (items||[]).filter(i=>(i.amounts?i.amounts[mi]:i.monthlyAmount)>0).length;}
-
-function updateAmt(list,id,mi,val){
-  const idx=(list||[]).findIndex(x=>x.id===id);
-  if(idx===-1)return;
-  list[idx].amounts[mi]=parseFloat(val)||0;
-  save();render();
-}
+function paidCount(items,mi){return(items||[]).filter(i=>isPaid(i.id,mi)&&(i.amounts?i.amounts[mi]:i.monthlyAmount)>0).length;}
+function activeCount(items,mi){return(items||[]).filter(i=>(i.amounts?i.amounts[mi]:i.monthlyAmount)>0).length;}
+function updateAmt(list,id,mi,val){const idx=(list||[]).findIndex(x=>x.id===id);if(idx===-1)return;list[idx].amounts[mi]=parseFloat(val)||0;save();render();}
 
 const CARD_ITEM_MAP={"UB":"h6","RCBC":"h7","BPI":"h8"};
-
-function getCCSettings(){
-  if(!state.ccSettings)state.ccSettings=JSON.parse(JSON.stringify(DEFAULT_CC_SETTINGS));
-  return state.ccSettings;
-}
-
-function chargeBillingOffset(bank,chargeDay){
-  const s=getCCSettings()[bank];
-  if(!s)return 0;
-  return chargeDay>s.cutoff?1:0;
-}
-
+function getCCSettings(){if(!state.ccSettings)state.ccSettings=JSON.parse(JSON.stringify(DEFAULT_CC_SETTINGS));return state.ccSettings;}
+function chargeBillingOffset(bank,chargeDay){const s=getCCSettings()[bank];if(!s)return 0;return chargeDay>s.cutoff?1:0;}
 function cardChargesDetail(bank,mi){
-  const yd=getYearData(state.year);
-  const s=getCCSettings()[bank];
+  const yd=getYearData(state.year);const s=getCCSettings()[bank];
   if(!s)return{currentItems:[],prevItems:[],total:0};
-  const cutoff=s.cutoff;
-  const prevMi=(mi+11)%12;
-  const currentItems=[];
-  const prevItems=[];
+  const cutoff=s.cutoff;const prevMi=(mi+11)%12;const currentItems=[];const prevItems=[];
   (yd.installments||[]).filter(i=>(i.bank||"BPI")===bank).forEach(inst=>{
     const cd=inst.chargeDay||0;
     if(!cd||cd<=cutoff){const amt=inst.amounts[mi]||0;if(amt>0)currentItems.push({name:inst.name,amount:amt,type:"installment",chargeDay:cd||null});}
     else{const amt=inst.amounts[prevMi]||0;if(amt>0)prevItems.push({name:inst.name,amount:amt,type:"installment",chargeDay:cd,fromMonth:prevMi});}
   });
-  (state.subscriptions||[]).filter(sub=>sub.bank===bank).forEach(sub=>{
-    if(sub.monthlyAmount>0)currentItems.push({name:sub.name,amount:sub.monthlyAmount,type:"subscription",chargeDay:null});
-  });
+  (state.subscriptions||[]).filter(sub=>sub.bank===bank).forEach(sub=>{if(sub.monthlyAmount>0)currentItems.push({name:sub.name,amount:sub.monthlyAmount,type:"subscription",chargeDay:null});});
   const total=currentItems.reduce((s,i)=>s+i.amount,0)+prevItems.reduce((s,i)=>s+i.amount,0);
   return{currentItems,prevItems,total};
 }
-
 function cardChargesForMonth(bank,mi){return cardChargesDetail(bank,mi).total;}
-
-function calcMinPayment(bank,totalCharges){
-  const s=getCCSettings()[bank];
-  if(!s||totalCharges<=0)return 0;
-  return Math.max(s.minPayFlat,totalCharges*s.minPayPct);
-}
-
+function calcMinPayment(bank,totalCharges){const s=getCCSettings()[bank];if(!s||totalCharges<=0)return 0;return Math.max(s.minPayFlat,totalCharges*s.minPayPct);}
 function getCardNote(item,mi){
-  if(!CARD_ITEM_MAP[item.name])return null;
-  const bank=item.name;
-  const detail=cardChargesDetail(bank,mi);
-  if(detail.total===0)return null;
-  const minPay=calcMinPayment(bank,detail.total);
-  return{charges:detail.total,minPay,detail};
+  if(!CARD_ITEM_MAP[item.name])return null;const bank=item.name;const detail=cardChargesDetail(bank,mi);
+  if(detail.total===0)return null;const minPay=calcMinPayment(bank,detail.total);return{charges:detail.total,minPay,detail};
 }
-
 function autoCalcCCAmounts(){
-  const CC_CARDS=["UB","RCBC","BPI"];
-  const yd=getYearData(state.year);
+  const CC_CARDS=["UB","RCBC","BPI"];const yd=getYearData(state.year);
   const allItems=[...(yd.items15||[]),...(yd.items30||[])];
   CC_CARDS.forEach(bank=>{
-    const item=allItems.find(i=>i.name===bank&&CARD_ITEM_MAP[bank]);
-    if(!item)return;
-    for(let mi=0;mi<12;mi++){
-      const detail=cardChargesDetail(bank,mi);
-      if(detail.total>0){
-        const cfg=getCCSettings()[bank];
-        const minFlat=cfg?cfg.minPayFlat:0;
-        item.amounts[mi]=parseFloat((detail.total+minFlat).toFixed(2));
-        item._autoCalc=true;
-      }
-    }
+    const item=allItems.find(i=>i.name===bank&&CARD_ITEM_MAP[bank]);if(!item)return;
+    for(let mi=0;mi<12;mi++){const detail=cardChargesDetail(bank,mi);if(detail.total>0){const cfg=getCCSettings()[bank];const minFlat=cfg?cfg.minPayFlat:0;item.amounts[mi]=parseFloat((detail.total+minFlat).toFixed(2));item._autoCalc=true;}}
   });
 }
 
 // =====================================================================
-// MODAL HELPERS
+// DEBT TRACKER HELPERS
 // =====================================================================
+function calcDebtFreeDate(){
+  const debts=state.debts.filter(d=>d.balance>0);
+  if(debts.length===0)return null;
+  const extra=state.debtExtraPayment||0;
+  let debtsCopy=debts.map(d=>({...d,remaining:d.balance}));
+  const sorted=sortDebtsByStrategy(debtsCopy);
+  let months=0;const maxMonths=360;
+  while(sorted.some(d=>d.remaining>0)&&months<maxMonths){
+    months++;
+    let extraLeft=extra;
+    sorted.forEach(d=>{
+      if(d.remaining<=0)return;
+      const interest=d.remaining*(d.rate/100/12);
+      d.remaining=Math.max(0,d.remaining+interest-d.minPayment);
+    });
+    // Apply extra to first debt with balance
+    for(let d of sorted){if(d.remaining>0){d.remaining=Math.max(0,d.remaining-extraLeft);break;}}
+  }
+  if(months>=maxMonths)return null;
+  const now=new Date();
+  const target=new Date(now.getFullYear(),now.getMonth()+months,1);
+  return{months,date:target.toLocaleDateString("en-PH",{month:"long",year:"numeric"})};
+}
+function sortDebtsByStrategy(debts){
+  const d=[...debts];
+  if(state.debtStrategy==="snowball")return d.sort((a,b)=>(a.remaining||a.balance)-(b.remaining||b.balance));
+  return d.sort((a,b)=>b.rate-a.rate);
+}
+function totalDebt(){return(state.debts||[]).reduce((s,d)=>s+d.balance,0);}
+function totalMinPayment(){return(state.debts||[]).reduce((s,d)=>s+d.minPayment,0);}
+function getPayoffOrder(){
+  return sortDebtsByStrategy(state.debts.filter(d=>d.balance>0).map(d=>({...d})));
+}
+function calcPayoffMonthsFor(debt){
+  if(debt.balance<=0)return 0;
+  let bal=debt.balance;const r=debt.rate/100/12;const pmt=debt.minPayment+(state.debtExtraPayment||0);
+  if(pmt<=0)return 999;let m=0;
+  while(bal>0&&m<360){bal=bal*(1+r)-pmt;if(bal<0)bal=0;m++;}
+  return m;
+}
+function getPayoffDate(months){
+  const now=new Date();
+  const t=new Date(now.getFullYear(),now.getMonth()+months,1);
+  return t.toLocaleDateString("en-PH",{month:"short",year:"numeric"});
+}
+
+// =====================================================================
+// EXPENSE MODAL
+// =====================================================================
+
+function buildCardNoteHTML(item, cardNote) {
+  if (!cardNote) return "";
+  const cfg = getCCSettings()[item.name] || {};
+  const minFlat = cfg.minPayFlat || 0;
+  const total = cardNote.charges + minFlat;
+
+  let currentSection = "";
+  if (cardNote.detail.currentItems.length > 0) {
+    const currentTotal = cardNote.detail.currentItems.reduce((s,i) => s + i.amount, 0);
+    const rows = cardNote.detail.currentItems.map(ci => {
+      const subTag = ci.type === "subscription" ? ' <span style="font-size:9px;color:var(--teal);font-weight:700;">SUB</span>' : "";
+      return `<div class="cc-summary-row"><span>${ci.name}${subTag}</span><span><span class="cc-billing-tag current">within cutoff</span> ${php(ci.amount)}</span></div>`;
+    }).join("");
+    currentSection = `<div class="cc-summary-section"><div class="cc-summary-section-head"><span>This Month's Charges</span><span style="color:var(--green)">${php(currentTotal)}</span></div>${rows}</div>`;
+  }
+
+  let prevSection = "";
+  if (cardNote.detail.prevItems.length > 0) {
+    const prevTotal = cardNote.detail.prevItems.reduce((s,i) => s + i.amount, 0);
+    const prevLabel = SHORT[((state.month + 11) % 12)];
+    const rows = cardNote.detail.prevItems.map(pi => {
+      return `<div class="cc-summary-row from-prev"><span>${pi.name}</span><span><span class="cc-billing-tag prev">carried over</span> ${php(pi.amount)}</span></div>`;
+    }).join("");
+    prevSection = `<div class="cc-summary-section"><div class="cc-summary-section-head"><span>From ${prevLabel} (After Cutoff)</span><span style="color:var(--gold)">${php(prevTotal)}</span></div>${rows}</div>`;
+  }
+
+  return `<div style="margin-top:6px;">
+    <button class="cc-summary-toggle" data-cctoggle="${item.id}">
+      <span>📋 ${php(cardNote.charges)} + ₱${minFlat} flat = ${php(total)}</span>
+      <span class="chevron" id="chev_${item.id}">▼</span>
+    </button>
+    <div class="cc-summary-panel" id="ccpanel_${item.id}">
+      ${currentSection}
+      ${prevSection}
+      <div class="cc-summary-total"><span>Card Charges</span><span>${php(cardNote.charges)}</span></div>
+      <div style="padding:6px 10px;background:rgba(245,158,11,.06);border-top:1px solid rgba(245,158,11,.2);">
+        <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;color:#b45309;"><span>+ Min Pay Flat</span><span>+ ${php(minFlat)}</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:800;color:var(--purple);margin-top:5px;padding-top:5px;border-top:1px solid rgba(108,63,197,.15);"><span>= Total Payable</span><span>${php(total)}</span></div>
+      </div>
+    </div>
+  </div>`;
+}
+
 function openAdd(listKey){state.modal={type:"add",listKey,amtMode:"different"};render();}
 function openEdit(listKey,id){
-  const yd=getYearData(state.year);
-  const list=listKey==="subscriptions"?state.subscriptions:yd[listKey];
-  const item=(list||[]).find(x=>x.id===id);
-  if(!item)return;
-  const amtMode=item.consistent?"consistent":"different";
-  state.modal={type:"edit",listKey,item:JSON.parse(JSON.stringify(item)),amtMode};render();
+  const yd=getYearData(state.year);const list=listKey==="subscriptions"?state.subscriptions:yd[listKey];
+  const item=(list||[]).find(x=>x.id===id);if(!item)return;
+  state.modal={type:"edit",listKey,item:JSON.parse(JSON.stringify(item)),amtMode:item.consistent?"consistent":"different"};render();
 }
 function closeModal(){state.modal=null;render();}
 function setAmtMode(mode){if(state.modal){state.modal.amtMode=mode;render();}}
 
 function saveModal(){
-  const m=state.modal;
-  if(!m)return;
-  const yd=getYearData(state.year);
+  const m=state.modal;if(!m)return;const yd=getYearData(state.year);
   if(m.listKey==="subscriptions"){
-    const name=document.getElementById("mName")?.value.trim()||"";
-    const bank=document.getElementById("mBank")?.value||"Cash";
-    const amt=parseFloat(document.getElementById("mAmt")?.value)||0;
-    if(!name)return;
-    if(!state.subscriptions)state.subscriptions=[];
+    const name=document.getElementById("mName")?.value.trim()||"";const bank=document.getElementById("mBank")?.value||"Cash";const amt=parseFloat(document.getElementById("mAmt")?.value)||0;
+    if(!name)return;if(!state.subscriptions)state.subscriptions=[];
     if(m.type==="add"){state.subscriptions.push({id:"s"+uid(),name,bank,monthlyAmount:amt});}
     else{const idx=state.subscriptions.findIndex(x=>x.id===m.item.id);if(idx>-1)Object.assign(state.subscriptions[idx],{name,bank,monthlyAmount:amt});}
   } else {
-    const name=document.getElementById("mName")?.value.trim()||"";
-    const bank=document.getElementById("mBank")?.value||"Cash";
-    const dueDate=document.getElementById("mDue")?.value||"";
-    const via=document.getElementById("mVia")?.value||"";
-    const chargeDay=parseInt(document.getElementById("mChargeDay")?.value)||null;
-    if(!name)return;
-    const isConsistent=(m.amtMode==="consistent");
-    let amounts=new Array(12).fill(0);
-    const CC_BANKS=["BPI","RCBC","UB"];
-    if(isConsistent){
-      const v=parseFloat(document.getElementById("mConsistentAmt")?.value)||0;
-      if(CC_BANKS.includes(bank)&&chargeDay){
-        amounts=new Array(12).fill(0);
-        for(let mi2=0;mi2<12;mi2++){const offset=chargeBillingOffset(bank,chargeDay);const targetMi=(mi2+offset)%12;amounts[targetMi]=(amounts[targetMi]||0)+v;}
-      } else {amounts=new Array(12).fill(v);}
-    } else {
-      const amtInputs=document.querySelectorAll(".m-month-amt");
-      amtInputs.forEach(inp=>{amounts[+inp.dataset.mi]=parseFloat(inp.value)||0;});
-      if(CC_BANKS.includes(bank)&&chargeDay){
-        const offset=chargeBillingOffset(bank,chargeDay);
-        if(offset>0){const shifted=new Array(12).fill(0);for(let mi2=0;mi2<12;mi2++){const targetMi=(mi2+offset)%12;shifted[targetMi]=(shifted[targetMi]||0)+(amounts[mi2]||0);}amounts=shifted;}
-      }
-    }
+    const name=document.getElementById("mName")?.value.trim()||"";const bank=document.getElementById("mBank")?.value||"Cash";const dueDate=document.getElementById("mDue")?.value||"";const via=document.getElementById("mVia")?.value||"";const chargeDay=parseInt(document.getElementById("mChargeDay")?.value)||null;
+    if(!name)return;const isConsistent=(m.amtMode==="consistent");let amounts=new Array(12).fill(0);const CC_BANKS=["BPI","RCBC","UB"];
+    if(isConsistent){const v=parseFloat(document.getElementById("mConsistentAmt")?.value)||0;if(CC_BANKS.includes(bank)&&chargeDay){amounts=new Array(12).fill(0);for(let mi2=0;mi2<12;mi2++){const offset=chargeBillingOffset(bank,chargeDay);const targetMi=(mi2+offset)%12;amounts[targetMi]=(amounts[targetMi]||0)+v;}}else{amounts=new Array(12).fill(v);}}
+    else{const amtInputs=document.querySelectorAll(".m-month-amt");amtInputs.forEach(inp=>{amounts[+inp.dataset.mi]=parseFloat(inp.value)||0;});if(CC_BANKS.includes(bank)&&chargeDay){const offset=chargeBillingOffset(bank,chargeDay);if(offset>0){const shifted=new Array(12).fill(0);for(let mi2=0;mi2<12;mi2++){const targetMi=(mi2+offset)%12;shifted[targetMi]=(shifted[targetMi]||0)+(amounts[mi2]||0);}amounts=shifted;}}}
     if(!yd[m.listKey])yd[m.listKey]=[];
-    if(m.type==="add"){
-      yd[m.listKey].push({id:(m.listKey==="installments"?"i":"h")+uid(),name,bank,dueDate,via,chargeDay,amounts,highlight:"",consistent:isConsistent});
-    } else {
-      const idx=yd[m.listKey].findIndex(x=>x.id===m.item.id);
-      if(idx>-1)Object.assign(yd[m.listKey][idx],{name,bank,dueDate,via,chargeDay,amounts,consistent:isConsistent});
-    }
+    if(m.type==="add"){yd[m.listKey].push({id:(m.listKey==="installments"?"i":"h")+uid(),name,bank,dueDate,via,chargeDay,amounts,highlight:"",consistent:isConsistent});}
+    else{const idx=yd[m.listKey].findIndex(x=>x.id===m.item.id);if(idx>-1)Object.assign(yd[m.listKey][idx],{name,bank,dueDate,via,chargeDay,amounts,consistent:isConsistent});}
   }
-  state.hasData=true;
-  state.modal=null;save();render();
+  state.hasData=true;state.modal=null;save();render();
+}
+
+function buildModal(){
+  const m=state.modal;if(!m)return"";
+  const isSub=(m.listKey==="subscriptions");const isInst=(m.listKey==="installments");const item=m.item||{};
+  const title=m.type==="add"?(isSub?"Add Subscription":isInst?"Add Installment":"Add Expense"):(isSub?"Edit Subscription":isInst?"Edit Installment":"Edit Expense");
+  const amtMode=m.amtMode||"different";let bodyHtml="";
+  if(isSub){
+    bodyHtml=`<div class="form-group"><label class="form-label">Name</label><input id="mName" class="form-input" type="text" value="${item.name||""}" placeholder="e.g. Netflix"/></div><div class="form-row"><div class="form-group"><label class="form-label">Bank</label><select id="mBank" class="form-select">${BANKS.map(b=>`<option${b===(item.bank||"Cash")?" selected":""}>${b}</option>`).join("")}</select></div><div class="form-group"><label class="form-label">Monthly (₱)</label><input id="mAmt" class="form-input" type="number" inputmode="decimal" value="${item.monthlyAmount||0}"/></div></div>`;
+  } else {
+    const amounts=item.amounts||new Array(12).fill(0);const consistentVal=amounts.find(a=>a>0)||0;
+    bodyHtml=`<div class="form-group"><label class="form-label">Name</label><input id="mName" class="form-input" type="text" value="${item.name||""}" placeholder="Expense name"/></div><div class="form-row"><div class="form-group"><label class="form-label">Bank / Source</label><select id="mBank" class="form-select">${BANKS.map(b=>`<option${b===(item.bank||"Cash")?" selected":""}>${b}</option>`).join("")}</select></div><div class="form-group"><label class="form-label">Due Date</label><input id="mDue" class="form-input" type="text" value="${item.dueDate||""}" placeholder="e.g. 10th"/></div></div><div class="form-group"><label class="form-label">Via (optional)</label><input id="mVia" class="form-input" type="text" value="${item.via||""}" placeholder="e.g. Maribank"/></div><div id="ccCutoffNote" style="display:none;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);border-radius:10px;padding:9px 12px;margin-bottom:10px;font-size:11px;color:#92400e;font-weight:600;"></div><div id="chargeDayGroup" class="form-group" style="display:none;"><label class="form-label">Charge Date (Day of Month)</label><input id="mChargeDay" class="form-input" type="number" min="1" max="31" inputmode="numeric" value="${item.chargeDay||new Date().getDate()}" style="text-align:center;font-size:16px;font-weight:700;color:var(--purple)"/><div style="font-size:10px;color:var(--text3);margin-top:4px;">Used to determine if this charge falls within the cutoff and which month it bills to.</div></div><div class="form-group"><label class="form-label">Amount Type</label><div class="amt-mode-row"><button class="amt-mode-btn${amtMode==="consistent"?" active":""}" onclick="setAmtMode('consistent')">📌 Same Every Month</button><button class="amt-mode-btn${amtMode==="different"?" active":""}" onclick="setAmtMode('different')">📅 Different Per Month</button></div>${amtMode==="consistent"?`<div><label class="form-label" style="margin-top:6px">Monthly Amount (₱)</label><input id="mConsistentAmt" class="form-input" type="number" inputmode="decimal" value="${consistentVal}" style="font-size:18px;font-weight:700;text-align:center;color:var(--purple)"/><div style="font-size:10px;color:var(--text3);margin-top:5px;text-align:center">This amount will apply to all 12 months</div></div>`:`<div class="months-grid">${SHORT.map((s,i)=>`<div><div style="font-size:10px;color:var(--text3);text-align:center;margin-bottom:3px;font-weight:700">${s}</div><input class="form-input m-month-amt" data-mi="${i}" type="number" inputmode="decimal" value="${amounts[i]||0}" style="padding:5px;text-align:center;font-size:12px;font-weight:700"/></div>`).join("")}</div>`}</div>`;
+  }
+  return`<div class="modal-overlay" id="modalOverlay"><div class="modal"><div class="modal-handle"></div><div class="modal-title">${title}</div>${bodyHtml}<div class="modal-actions"><button class="btn-secondary" id="modalCancel">Cancel</button><button class="btn-primary" id="modalSave">Save</button></div></div></div>`;
 }
 
 // =====================================================================
-// BUILD MODAL
+// DEBT MODAL
 // =====================================================================
-function buildModal(){
-  const m=state.modal;
-  if(!m)return"";
-  const isSub=(m.listKey==="subscriptions");
-  const isInst=(m.listKey==="installments");
+function openDebtAdd(){state.debtModal={type:"add"};render();}
+function openDebtEdit(id){const d=(state.debts||[]).find(x=>x.id===id);if(!d)return;state.debtModal={type:"edit",item:JSON.parse(JSON.stringify(d))};render();}
+function closeDebtModal(){state.debtModal=null;render();}
+function saveDebtModal(){
+  const name=document.getElementById("dmName")?.value.trim()||"";
+  const type=document.getElementById("dmType")?.value||"Other";
+  const balance=parseFloat(document.getElementById("dmBalance")?.value)||0;
+  const rate=parseFloat(document.getElementById("dmRate")?.value)||0;
+  const minPayment=parseFloat(document.getElementById("dmMin")?.value)||0;
+  const originalAmount=parseFloat(document.getElementById("dmOriginal")?.value)||balance;
+  if(!name||balance<=0)return;
+  if(!state.debts)state.debts=[];
+  const m=state.debtModal;
+  if(m.type==="add"){state.debts.push({id:"d"+uid(),name,type,balance,rate,minPayment,originalAmount});}
+  else{const idx=state.debts.findIndex(x=>x.id===m.item.id);if(idx>-1)Object.assign(state.debts[idx],{name,type,balance,rate,minPayment,originalAmount});}
+  state.debtModal=null;save();render();
+}
+function deleteDebt(id){if(!confirm("Delete this debt?"))return;state.debts=(state.debts||[]).filter(d=>d.id!==id);save();render();}
+function markDebtPaid(id){
+  const idx=(state.debts||[]).findIndex(d=>d.id===id);
+  if(idx>-1){state.debts[idx].balance=0;}
+  save();render();
+}
+
+function buildDebtModal(){
+  const m=state.debtModal;if(!m)return"";
   const item=m.item||{};
-  const title=m.type==="add"?(isSub?"Add Subscription":isInst?"Add Installment":"Add Expense"):(isSub?"Edit Subscription":isInst?"Edit Installment":"Edit Expense");
-  const amtMode=m.amtMode||"different";
-  let bodyHtml="";
-  if(isSub){
-    bodyHtml=`
-      <div class="form-group"><label class="form-label">Name</label><input id="mName" class="form-input" type="text" value="${item.name||""}" placeholder="e.g. Netflix"/></div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Bank</label><select id="mBank" class="form-select">${BANKS.map(b=>`<option${b===(item.bank||"Cash")?" selected":""}>${b}</option>`).join("")}</select></div>
-        <div class="form-group"><label class="form-label">Monthly (₱)</label><input id="mAmt" class="form-input" type="number" inputmode="decimal" value="${item.monthlyAmount||0}"/></div>
-      </div>`;
-  } else {
-    const amounts=item.amounts||new Array(12).fill(0);
-    const consistentVal=amounts.find(a=>a>0)||0;
-    bodyHtml=`
-      <div class="form-group"><label class="form-label">Name</label><input id="mName" class="form-input" type="text" value="${item.name||""}" placeholder="Expense name"/></div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Bank / Source</label><select id="mBank" class="form-select">${BANKS.map(b=>`<option${b===(item.bank||"Cash")?" selected":""}>${b}</option>`).join("")}</select></div>
-        <div class="form-group"><label class="form-label">Due Date</label><input id="mDue" class="form-input" type="text" value="${item.dueDate||""}" placeholder="e.g. 10th"/></div>
-      </div>
-      <div class="form-group"><label class="form-label">Via (optional)</label><input id="mVia" class="form-input" type="text" value="${item.via||""}" placeholder="e.g. Maribank"/></div>
-      <div id="ccCutoffNote" style="display:none;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);border-radius:10px;padding:9px 12px;margin-bottom:10px;font-size:11px;color:#92400e;font-weight:600;"></div>
-      <div id="chargeDayGroup" class="form-group" style="display:none;">
-        <label class="form-label">Charge Date (Day of Month)</label>
-        <input id="mChargeDay" class="form-input" type="number" min="1" max="31" inputmode="numeric" value="${item.chargeDay||new Date().getDate()}" style="text-align:center;font-size:16px;font-weight:700;color:var(--purple)"/>
-        <div style="font-size:10px;color:var(--text3);margin-top:4px;">Used to determine if this charge falls within the cutoff and which month it bills to.</div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Amount Type</label>
-        <div class="amt-mode-row">
-          <button class="amt-mode-btn${amtMode==="consistent"?" active":""}" onclick="setAmtMode('consistent')">📌 Same Every Month</button>
-          <button class="amt-mode-btn${amtMode==="different"?" active":""}" onclick="setAmtMode('different')">📅 Different Per Month</button>
-        </div>
-        ${amtMode==="consistent"
-          ?`<div><label class="form-label" style="margin-top:6px">Monthly Amount (₱)</label><input id="mConsistentAmt" class="form-input" type="number" inputmode="decimal" value="${consistentVal}" style="font-size:18px;font-weight:700;text-align:center;color:var(--purple)"/><div style="font-size:11px;color:var(--text3);margin-top:5px;text-align:center">This amount will apply to all 12 months</div></div>`
-          :`<div class="months-grid">${SHORT.map((s,i)=>`<div><div style="font-size:10px;color:var(--text3);text-align:center;margin-bottom:3px;font-weight:700">${s}</div><input class="form-input m-month-amt" data-mi="${i}" type="number" inputmode="decimal" value="${amounts[i]||0}" style="padding:5px;text-align:center;font-size:12px;font-weight:700"/></div>`).join("")}</div>`
-        }
-      </div>`;
-  }
   return`
-  <div class="modal-overlay" id="modalOverlay">
-    <div class="modal">
+  <div class="debt-modal-overlay" id="debtModalOverlay">
+    <div class="debt-modal">
       <div class="modal-handle"></div>
-      <div class="modal-title">${title}</div>
-      ${bodyHtml}
+      <div class="modal-title">${m.type==="add"?"Add Debt":"Edit Debt"}</div>
+      <div class="form-group"><label class="form-label">Debt Name</label><input id="dmName" class="form-input" type="text" value="${item.name||""}" placeholder="e.g. BPI Credit Card"/></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Type</label><select id="dmType" class="form-select">${DEBT_TYPES.map(t=>`<option${t===(item.type||"Other")?" selected":""}>${t}</option>`).join("")}</select></div>
+        <div class="form-group"><label class="form-label">Interest Rate %</label><input id="dmRate" class="form-input" type="number" inputmode="decimal" value="${item.rate||0}" placeholder="e.g. 24"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Current Balance (₱)</label><input id="dmBalance" class="form-input" type="number" inputmode="decimal" value="${item.balance||""}" placeholder="0"/></div>
+        <div class="form-group"><label class="form-label">Original Amount (₱)</label><input id="dmOriginal" class="form-input" type="number" inputmode="decimal" value="${item.originalAmount||item.balance||""}" placeholder="0"/></div>
+      </div>
+      <div class="form-group"><label class="form-label">Minimum Monthly Payment (₱)</label><input id="dmMin" class="form-input" type="number" inputmode="decimal" value="${item.minPayment||""}" placeholder="0" style="font-size:16px;font-weight:700;text-align:center;color:#dc2626"/></div>
       <div class="modal-actions">
-        <button class="btn-secondary" id="modalCancel">Cancel</button>
-        <button class="btn-primary" id="modalSave">Save</button>
+        <button class="btn-secondary" id="debtModalCancel">Cancel</button>
+        <button class="btn-danger" id="debtModalSave">Save Debt</button>
       </div>
     </div>
   </div>`;
@@ -561,38 +670,47 @@ function render(){
   if(activeChip)activeChip.scrollIntoView({inline:"center",behavior:"smooth"});
 }
 
-function buildYearSelector(){
-  const currentYear=getCurrentYear();
-  const years=[currentYear-1,currentYear,currentYear+1,currentYear+2];
-  return`<select class="year-select" id="yearSelect">${years.map(y=>`<option value="${y}"${y===state.year?" selected":""}>${y}</option>`).join("")}</select>`;
+function buildApp(){
+  return`
+  ${buildAppTabBar()}
+  ${state.appTab==="expense"?buildExpenseSection():buildDebtSection()}
+  `;
 }
 
-function buildSettingsModal(){
-  if(!state.settingsOpen)return"";
+function buildAppTabBar(){
   return`
-  <div class="settings-overlay" id="settingsOverlay">
-    <div class="settings-panel">
-      <div class="settings-header">Settings</div>
-      <div class="settings-item" id="settingsImport"><span class="settings-item-icon">📥</span><span class="settings-item-label">Import Data</span></div>
-      <div class="settings-item" id="settingsExport"><span class="settings-item-icon">📤</span><span class="settings-item-label">Export Data</span></div>
-      <div class="settings-item" id="settingsCC"><span class="settings-item-icon">💳</span><span class="settings-item-label">CC Settings</span></div>
-      <div class="settings-item" id="settingsReset" style="color:var(--red);"><span class="settings-item-icon">🗑️</span><span class="settings-item-label" style="color:var(--red);">Clear All Data</span></div>
-    </div>
+  <div class="app-tab-bar">
+    <button class="app-tab${state.appTab==="expense"?" active":""}" data-apptab="expense">
+      <span class="tab-icon">💰</span>Expenses
+    </button>
+    <button class="app-tab${state.appTab==="debt"?" active":""}" data-apptab="debt">
+      <span class="tab-icon">📉</span>Debts
+    </button>
   </div>`;
 }
 
-function buildApp(){
+// =====================================================================
+// EXPENSE SECTION BUILD
+// =====================================================================
+function buildYearSelector(){
+  const currentYear=getCurrentYear();const years=[currentYear-1,currentYear,currentYear+1,currentYear+2];
+  return`<select class="year-select" id="yearSelect">${years.map(y=>`<option value="${y}"${y===state.year?" selected":""}>${y}</option>`).join("")}</select>`;
+}
+function buildSettingsModal(){
+  if(!state.settingsOpen)return"";
+  return`<div class="settings-overlay" id="settingsOverlay"><div class="settings-panel"><div class="settings-header">Settings</div><div class="settings-item" id="settingsImport"><span class="settings-item-icon">📥</span><span class="settings-item-label">Import Data</span></div><div class="settings-item" id="settingsExport"><span class="settings-item-icon">📤</span><span class="settings-item-label">Export Data</span></div><div class="settings-item" id="settingsCC"><span class="settings-item-icon">💳</span><span class="settings-item-label">CC Settings</span></div><div class="settings-item" id="settingsReset" style="color:var(--red);"><span class="settings-item-icon">🗑️</span><span class="settings-item-label" style="color:var(--red);">Clear All Data</span></div></div></div>`;
+}
+function buildExpenseSection(){
   const {t15,t30,tInst,tSubs,rem15,rem30,totalExp,totalInc,netSavings}=totals();
-  const mi=state.month;
-  const yd=getYearData(state.year);
+  const mi=state.month;const yd=getYearData(state.year);
   const views=[["dashboard","Overview"],["15th","15th"],["30th","30th"],["installments","Installs"],["subscriptions","Subs"]];
   return`
   ${buildSettingsModal()}
+  <div class="expense-section">
   <div class="header">
     <div class="header-top">
       <div style="display:flex;align-items:center;gap:8px;">
-        <div class="logo">Expenses</div>
-        ${buildYearSelector()}
+        <div class="logo">Expenses</div>${buildYearSelector()}
       </div>
       <div class="header-actions">
         <button class="icon-btn" id="btnHideIncome">${state.hideIncome?"👁 Show":"🙈 Hide"}</button>
@@ -608,11 +726,10 @@ function buildApp(){
   <div class="nav">${views.map(([k,l])=>`<button class="nav-btn${state.view===k?" active":""}" data-view="${k}">${l}</button>`).join("")}</div>
   <div class="content">${buildView(mi,t15,t30,tInst,tSubs,rem15,rem30,totalExp,totalInc,netSavings)}</div>
   ${buildModal()}
-  `;
+  </div>`;
 }
 
 function buildView(mi,t15,t30,tInst,tSubs,rem15,rem30,totalExp,totalInc,netSavings){
-  // Show empty state if no data yet
   if(!state.hasData&&state.view==="dashboard"){return buildEmptyState();}
   const yd=getYearData(state.year);
   switch(state.view){
@@ -625,22 +742,11 @@ function buildView(mi,t15,t30,tInst,tSubs,rem15,rem30,totalExp,totalInc,netSavin
     default:return"";
   }
 }
-
 function buildEmptyState(){
-  return`
-  <div class="empty-state">
-    <div class="empty-icon">₱</div>
-    <div class="empty-title">Welcome to Budget Tracker</div>
-    <div class="empty-desc">Import your personal budget data to get started, or start fresh by adding expenses manually.</div>
-    <button class="empty-import-btn" id="emptyImportBtn">📥 Import Budget Tracker-data.json</button>
-    <button class="empty-skip-btn" id="emptySkipBtn">Start Fresh (No Data)</button>
-  </div>`;
+  return`<div class="empty-state"><div class="empty-icon">₱</div><div class="empty-title">Welcome to Budget Tracker</div><div class="empty-desc">Import your personal budget data to get started, or start fresh by adding expenses manually.</div><button class="empty-import-btn" id="emptyImportBtn">📥 Import Budget Tracker-data.json</button><button class="empty-skip-btn" id="emptySkipBtn">Start Fresh (No Data)</button></div>`;
 }
-
 function buildDashboard(mi,t15,t30,tInst,tSubs,rem15,rem30,totalExp,totalInc,netSavings){
-  const bt=bankTotals();
-  const yd=getYearData(state.year);
-  const savingsPct=totalInc>0?Math.round((netSavings/totalInc)*100):0;
+  const bt=bankTotals();const yd=getYearData(state.year);const savingsPct=totalInc>0?Math.round((netSavings/totalInc)*100):0;
   return`
   <div class="stat-grid">
     <div class="stat-card"><div class="stat-label">Total Income</div><div class="stat-value" style="color:var(--green)">${state.hideIncome?"₱ ••••••":php(totalInc)}</div><div class="stat-sub">15th + 30th</div></div>
@@ -653,43 +759,33 @@ function buildDashboard(mi,t15,t30,tInst,tSubs,rem15,rem30,totalExp,totalInc,net
   </div>
   <div class="card">
     <div class="card-title">Budget Overview — ${MONTHS[mi]} ${state.year}</div>
-    ${[["15th Payroll",t15,yd.income15,"#6c3fc5"],["30th Payroll",t30,yd.income30,"#8b5cf6"],["Installments",tInst,yd.income30,"#f59e0b"],["Subscriptions",tSubs,yd.income30,"#06b6d4"]].map(([lbl,spent,tot,col])=>{
-      const pct=Math.min(100,tot>0?(spent/tot)*100:0);
-      const over=spent>tot;
-      return`<div class="budget-bar"><div class="budget-bar-label"><span>${lbl}</span><span style="color:${over?"var(--red)":"var(--text)"}">${php(spent)}</span></div><div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${over?"var(--red)":col}"></div></div></div>`;
-    }).join("")}
+    ${[["15th Payroll",t15,yd.income15,"#6c3fc5"],["30th Payroll",t30,yd.income30,"#8b5cf6"],["Installments",tInst,yd.income30,"#f59e0b"],["Subscriptions",tSubs,yd.income30,"#06b6d4"]].map(([lbl,spent,tot,col])=>{const pct=Math.min(100,tot>0?(spent/tot)*100:0);const over=spent>tot;return`<div class="budget-bar"><div class="budget-bar-label"><span>${lbl}</span><span style="color:${over?"var(--red)":"var(--text)"}">${php(spent)}</span></div><div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${over?"var(--red)":col}"></div></div></div>`;}).join("")}
   </div>
   <div class="card">
     <div class="card-title">By Bank — ${MONTHS[mi]} ${state.year}</div>
-    ${Object.entries(bt).sort((a,b)=>b[1]-a[1]).map(([bank,amt])=>`
-    <div class="bank-row"><div class="bank-name"><div class="bank-dot" style="background:${bankColor(bank)}"></div>${bank}</div><div class="bank-amount">${php(amt)}</div></div>`).join("")}
+    ${Object.entries(bt).sort((a,b)=>b[1]-a[1]).map(([bank,amt])=>`<div class="bank-row"><div class="bank-name"><div class="bank-dot" style="background:${bankColor(bank)}"></div>${bank}</div><div class="bank-amount">${php(amt)}</div></div>`).join("")}
     <hr class="separator"/>
     <div class="bank-row"><div class="bank-name" style="font-weight:800;color:var(--text)">Total</div><div class="bank-amount" style="color:var(--purple);font-size:15px;font-weight:800">${php(totalExp)}</div></div>
   </div>
   <div class="card">
     <div class="card-title">Breakdown — ${MONTHS[mi]} ${state.year}</div>
     <div class="breakdown-grid">
-      ${[["15th Payroll",t15,(yd.items15||[]).filter(i=>i.amounts[mi]>0),"amounts"],["30th Payroll",t30,(yd.items30||[]).filter(i=>i.amounts[mi]>0),"amounts"],["Installments",tInst,(yd.installments||[]).filter(i=>i.amounts[mi]>0),"amounts"],["Subscriptions",tSubs,state.subscriptions||[],"monthly"]].map(([lbl,amt,items,type])=>`
-      <div class="breakdown-section">
-        <div class="breakdown-head"><span class="breakdown-head-label">${lbl}</span><span>${php(amt)}</span></div>
-        <div class="breakdown-rows">${items.map(item=>`<div class="breakdown-row"><span>${item.name}</span><span>${php(type==="amounts"?item.amounts[mi]:item.monthlyAmount)}</span></div>`).join("")}</div>
-      </div>`).join("")}
+      ${[["15th Payroll",t15,(yd.items15||[]).filter(i=>i.amounts[mi]>0),"amounts"],["30th Payroll",t30,(yd.items30||[]).filter(i=>i.amounts[mi]>0),"amounts"],["Installments",tInst,(yd.installments||[]).filter(i=>i.amounts[mi]>0),"amounts"],["Subscriptions",tSubs,state.subscriptions||[],"monthly"]].map(([lbl,amt,items,type])=>`<div class="breakdown-section"><div class="breakdown-head"><span class="breakdown-head-label">${lbl}</span><span>${php(amt)}</span></div><div class="breakdown-rows">${items.map(item=>`<div class="breakdown-row"><span>${item.name}</span><span>${php(type==="amounts"?item.amounts[mi]:item.monthlyAmount)}</span></div>`).join("")}</div></div>`).join("")}
     </div>
   </div>`;
 }
-
 function buildPayroll(which,listKey,items,income,total,rem,mi){
-  const paidN=paidCount(items,mi);
-  const activeN=activeCount(items,mi);
+  const paidN=paidCount(items,mi);const activeN=activeCount(items,mi);
+  const reorder=state.reorderMode;
   return`
   <div class="section-header">
     <div><div class="section-title">${which} Payroll</div><div class="section-meta">${MONTHS[mi]} ${state.year}</div></div>
-    <div style="text-align:right">
-      ${state.hideIncome
-        ?`<div style="font-size:14px;font-weight:800;color:var(--text2)">₱ ••••••</div>`
-        :`<input id="incEdit" type="number" value="${income}" inputmode="numeric" style="width:100px;background:var(--surface2);border:1px solid var(--border);border-radius:9px;color:var(--text);padding:6px 10px;font-size:13px;font-weight:700;text-align:right;outline:none;font-family:'Plus Jakarta Sans',sans-serif;" data-which="${which}"/>`
-      }
-      <div style="font-size:10px;color:var(--text3);margin-top:3px;font-weight:600">Income</div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <button class="reorder-btn${reorder?" active":""}" id="btnReorder" data-listkey="${listKey}">${reorder?"✓ Done":"⇅ Reorder"}</button>
+      <div style="text-align:right">
+        ${state.hideIncome?`<div style="font-size:14px;font-weight:800;color:var(--text2)">₱ ••••••</div>`:`<input id="incEdit" type="number" value="${income}" inputmode="numeric" style="width:100px;background:var(--surface2);border:1px solid var(--border);border-radius:9px;color:var(--text);padding:6px 10px;font-size:13px;font-weight:700;text-align:right;outline:none;font-family:'Plus Jakarta Sans',sans-serif;" data-which="${which}"/>`}
+        <div style="font-size:10px;color:var(--text3);margin-top:3px;font-weight:600">Income</div>
+      </div>
     </div>
   </div>
   <div class="total-bar">
@@ -697,152 +793,270 @@ function buildPayroll(which,listKey,items,income,total,rem,mi){
     <div style="text-align:right"><div class="total-bar-label">Remaining</div><div class="total-bar-value" style="color:${rem>=0?"var(--green)":"var(--red)"}">${state.hideIncome?"₱ ••••":php(Math.abs(rem))}</div></div>
   </div>
   <div class="paid-summary"><span>${paidN} of ${activeN} paid</span><span class="paid-count">${paidN===activeN&&activeN>0?"All done ✓":paidN+" paid"}</span></div>
-  <div class="expense-list">
-  ${items.map(item=>{
-    const amt=item.amounts[mi]||0;
-    const paid=isPaid(item.id,mi);
-    const isEditing=state.editCell===item.id+"_"+mi;
-    const bankc=bankColor(item.bank||"Cash");
-    const cardNote=getCardNote(item,mi);
+  ${reorder?`<div style="font-size:11px;color:var(--text3);text-align:center;margin-bottom:8px;font-weight:600;">Tap ▲ ▼ to reorder</div>`:""}
+  <div class="expense-list" id="expenseList_${listKey}">
+  ${items.map((item, idx)=>{
+    const amt=item.amounts[mi]||0;const paid=isPaid(item.id,mi);const isEditing=state.editCell===item.id+"_"+mi;const bankc=bankColor(item.bank||"Cash");const cardNote=getCardNote(item,mi);
     return`
-    <div class="expense-item${item.highlight==="red"?" red-item":""}" style="${paid?"opacity:.5;border-color:rgba(16,185,129,.3)":""}${amt===0?"opacity:.35":""}">
+    <div class="expense-item${item.highlight==="red"?" red-item":""}" data-id="${item.id}" data-listkey="${listKey}" style="${paid?"opacity:.5;border-color:rgba(16,185,129,.3)":""}${amt===0?"opacity:.35":""}">
       <div class="expense-header">
+        ${reorder?`<div class="move-btns"><button class="move-btn" data-moveup="${item.id}" data-listkey="${listKey}"${idx===0?" disabled":""}>▲</button><button class="move-btn" data-movedown="${item.id}" data-listkey="${listKey}"${idx===items.length-1?" disabled":""}>▼</button></div>`:""}
         <div style="flex:1;min-width:0;">
           <div class="expense-name" style="${paid?"text-decoration:line-through;color:var(--text3)":""}">${item.name}${item.consistent?`<span class="consistent-badge">Fixed</span>`:""}${CARD_ITEM_MAP[item.name]?`<span class="autocalc-badge">⚡ Auto</span>`:""}</div>
-          <div class="expense-meta">
-            <span class="badge" style="background:${bankc}">${item.bank||"Cash"}</span>
-            ${item.dueDate?`<span class="due-tag">Due: ${item.dueDate}</span>`:""}
-            ${item.via?`<span class="via-tag">via ${item.via}</span>`:""}
-          </div>
-          ${cardNote?`<div style="margin-top:6px;">
-            <button class="cc-summary-toggle" data-cctoggle="${item.id}">
-              <span>📋 ${php(cardNote.charges)} + ₱${getCCSettings()[item.name]?.minPayFlat||0} flat = <strong>${php(cardNote.charges+(getCCSettings()[item.name]?.minPayFlat||0))}</strong></span>
-              <span class="chevron" id="chev_${item.id}">▼</span>
-            </button>
-            <div class="cc-summary-panel" id="ccpanel_${item.id}">
-              ${cardNote.detail.currentItems.length>0?`<div class="cc-summary-section"><div class="cc-summary-section-head"><span>This Month's Charges</span><span style="color:var(--green)">${php(cardNote.detail.currentItems.reduce((s,i)=>s+i.amount,0))}</span></div>${cardNote.detail.currentItems.map(ci=>`<div class="cc-summary-row"><span>${ci.name}${ci.type==="subscription"?` <span style="font-size:9px;color:var(--teal);font-weight:700;">SUB</span>`:""}</span><span><span class="cc-billing-tag current">within cutoff</span> ${php(ci.amount)}</span></div>`).join("")}</div>`:""}
-              ${cardNote.detail.prevItems.length>0?`<div class="cc-summary-section"><div class="cc-summary-section-head"><span>From ${SHORT[((state.month+11)%12)]} (After Cutoff)</span><span style="color:var(--gold)">${php(cardNote.detail.prevItems.reduce((s,i)=>s+i.amount,0))}</span></div>${cardNote.detail.prevItems.map(pi=>`<div class="cc-summary-row from-prev"><span>${pi.name}</span><span><span class="cc-billing-tag prev">carried over</span> ${php(pi.amount)}</span></div>`).join("")}</div>`:""}
-              <div class="cc-summary-total"><span>Card Charges</span><span>${php(cardNote.charges)}</span></div>
-              <div style="padding:6px 10px;background:rgba(245,158,11,.06);border-top:1px solid rgba(245,158,11,.2);"><div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;color:#b45309;"><span>+ Min Pay Flat</span><span>+ ${php(getCCSettings()[item.name]?.minPayFlat||0)}</span></div><div style="display:flex;justify-content:space-between;font-size:12px;font-weight:800;color:var(--purple);margin-top:5px;padding-top:5px;border-top:1px solid rgba(108,63,197,.15);"><span>= Total Payable</span><span>${php(cardNote.charges+(getCCSettings()[item.name]?.minPayFlat||0))}</span></div></div>
-            </div></div>`:""}
+          <div class="expense-meta"><span class="badge" style="background:${bankc}">${item.bank||"Cash"}</span>${item.dueDate?`<span class="due-tag">Due: ${item.dueDate}</span>`:""}${item.via?`<span class="via-tag">via ${item.via}</span>`:""}</div>
+          ${reorder?"":buildCardNoteHTML(item, cardNote)}
         </div>
         <div style="margin-left:10px;text-align:right">
-          ${isEditing
-            ?`<input class="amt-edit" id="editInput_${item.id}" type="number" value="${amt}" inputmode="decimal" data-id="${item.id}" data-list="${listKey}" data-mi="${mi}"/>`
-            :`<div class="${amt>0?"expense-amount":"expense-amount zero"}" data-editcell="${item.id}_${mi}">${amt>0?php(amt):"—"}</div>`
-          }
+          ${isEditing?`<input class="amt-edit" id="editInput_${item.id}" type="number" value="${amt}" inputmode="decimal" data-id="${item.id}" data-list="${listKey}" data-mi="${mi}"/>`:`<div class="${amt>0?"expense-amount":"expense-amount zero"}" data-editcell="${item.id}_${mi}">${amt>0?php(amt):"—"}</div>`}
           ${paid?`<div style="font-size:10px;color:var(--green);margin-top:3px;font-weight:700">✓ Paid</div>`:""}
         </div>
       </div>
-      <div class="item-actions">
+      ${reorder?"":
+      `<div class="item-actions">
         <button class="item-action-btn paid-btn${paid?" active":""}" data-paid="${item.id}" data-mi="${mi}">${paid?"✓ Paid":"Mark Paid"}</button>
         <button class="item-action-btn edit" data-edit="${item.id}" data-listkey="${listKey}">Edit</button>
         <button class="item-action-btn delete" data-delete="${item.id}" data-listkey="${listKey}">Delete</button>
-      </div>
+      </div>`}
     </div>`;
   }).join("")}
   </div>
   <button class="add-btn" data-addlist="${listKey}">+ Add Expense</button>`;
 }
-
 function buildInstallments(mi,tInst){
-  const yd=getYearData(state.year);
-  const paidN=paidCount(yd.installments||[],mi);
-  const activeN=activeCount(yd.installments||[],mi);
+  const yd=getYearData(state.year);const paidN=paidCount(yd.installments||[],mi);const activeN=activeCount(yd.installments||[],mi);
   return`
   <div class="section-header"><div class="section-title">Installments</div><div style="font-size:15px;font-weight:800;color:var(--purple)">${php(tInst)}</div></div>
   <div class="section-meta" style="margin-bottom:8px;color:var(--text3);font-size:11px;">${MONTHS[mi]} ${state.year}</div>
   <div class="paid-summary"><span>${paidN} of ${activeN} paid this month</span><span class="paid-count">${paidN===activeN&&activeN>0?"All done ✓":paidN+" paid"}</span></div>
   <div class="expense-list">
   ${(yd.installments||[]).map(item=>{
-    const amt=item.amounts[mi]||0;
-    const paid=isPaid(item.id,mi);
-    const isEditing=state.editCell===item.id+"_"+mi;
-    const bankc=bankColor(item.bank||"BPI");
-    return`
-    <div class="expense-item" style="${paid?"opacity:.5;border-color:rgba(16,185,129,.3)":""}${amt===0?"opacity:.35":""}">
-      <div class="expense-header">
-        <div style="flex:1;min-width:0;">
-          <div class="expense-name" style="${paid?"text-decoration:line-through;color:var(--text3)":""}">${item.name}${item.consistent?`<span class="consistent-badge">Fixed</span>`:""}</div>
-          <div class="expense-meta"><span class="badge" style="background:${bankc}">${item.bank||"BPI"}</span>${item.dueDate?`<span class="due-tag">End: ${item.dueDate}</span>`:""}</div>
-        </div>
-        <div style="margin-left:10px;text-align:right">
-          ${isEditing
-            ?`<input class="amt-edit" id="editInput_${item.id}" type="number" value="${amt}" inputmode="decimal" data-id="${item.id}" data-list="installments" data-mi="${mi}"/>`
-            :`<div class="${amt>0?"expense-amount":"expense-amount zero"}" data-editcell="${item.id}_${mi}">${amt>0?php(amt):"—"}</div>`
-          }
-          ${paid?`<div style="font-size:10px;color:var(--green);margin-top:3px;font-weight:700">✓ Paid</div>`:""}
-        </div>
-      </div>
-      <div class="item-actions">
-        <button class="item-action-btn paid-btn${paid?" active":""}" data-paid="${item.id}" data-mi="${mi}">${paid?"✓ Paid":"Mark Paid"}</button>
-        <button class="item-action-btn edit" data-edit="${item.id}" data-listkey="installments">Edit</button>
-        <button class="item-action-btn delete" data-delete="${item.id}" data-listkey="installments">Delete</button>
-      </div>
-    </div>`;
+    const amt=item.amounts[mi]||0;const paid=isPaid(item.id,mi);const isEditing=state.editCell===item.id+"_"+mi;const bankc=bankColor(item.bank||"BPI");
+    return`<div class="expense-item" style="${paid?"opacity:.5;border-color:rgba(16,185,129,.3)":""}${amt===0?"opacity:.35":""}"><div class="expense-header"><div style="flex:1;min-width:0;"><div class="expense-name" style="${paid?"text-decoration:line-through;color:var(--text3)":""}">${item.name}${item.consistent?`<span class="consistent-badge">Fixed</span>`:""}</div><div class="expense-meta"><span class="badge" style="background:${bankc}">${item.bank||"BPI"}</span>${item.dueDate?`<span class="due-tag">End: ${item.dueDate}</span>`:""}</div></div><div style="margin-left:10px;text-align:right">${isEditing?`<input class="amt-edit" id="editInput_${item.id}" type="number" value="${amt}" inputmode="decimal" data-id="${item.id}" data-list="installments" data-mi="${mi}"/>`:`<div class="${amt>0?"expense-amount":"expense-amount zero"}" data-editcell="${item.id}_${mi}">${amt>0?php(amt):"—"}</div>`}${paid?`<div style="font-size:10px;color:var(--green);margin-top:3px;font-weight:700">✓ Paid</div>`:""}</div></div><div class="item-actions"><button class="item-action-btn paid-btn${paid?" active":""}" data-paid="${item.id}" data-mi="${mi}">${paid?"✓ Paid":"Mark Paid"}</button><button class="item-action-btn edit" data-edit="${item.id}" data-listkey="installments">Edit</button><button class="item-action-btn delete" data-delete="${item.id}" data-listkey="installments">Delete</button></div></div>`;
   }).join("")}
   </div>
   <button class="add-btn" data-addlist="installments">+ Add Installment</button>
   <div class="hint">💡 Tap any amount to edit inline.</div>`;
 }
-
 function buildSubscriptions(tSubs){
   return`
   <div class="section-header"><div class="section-title">Subscriptions</div><div style="font-size:15px;font-weight:800;color:var(--teal)">${php(tSubs)}/mo</div></div>
   <div class="sub-grid">
-  ${(state.subscriptions||[]).map(sub=>`
-    <div class="sub-card">
-      <div class="sub-name">${sub.name}</div>
-      <div style="font-size:10px;color:var(--text3);margin-bottom:4px;font-weight:600">${sub.bank}</div>
-      <div class="sub-amount">${php(sub.monthlyAmount)}<span class="sub-per">/mo</span></div>
-      <div class="sub-annual">${php(sub.monthlyAmount*12)}/yr</div>
-      <input class="sub-input" type="number" value="${sub.monthlyAmount}" inputmode="decimal" data-sub="${sub.id}"/>
-      <div style="display:flex;gap:5px;margin-top:6px">
-        <button class="item-action-btn edit" style="flex:1;padding:5px 4px;font-size:10px" data-edit="${sub.id}" data-listkey="subscriptions">Edit</button>
-        <button class="item-action-btn delete" style="flex:1;padding:5px 4px;font-size:10px" data-delete="${sub.id}" data-listkey="subscriptions">Delete</button>
-      </div>
-    </div>`).join("")}
+  ${(state.subscriptions||[]).map(sub=>`<div class="sub-card"><div class="sub-name">${sub.name}</div><div style="font-size:10px;color:var(--text3);margin-bottom:4px;font-weight:600">${sub.bank}</div><div class="sub-amount">${php(sub.monthlyAmount)}<span class="sub-per">/mo</span></div><div class="sub-annual">${php(sub.monthlyAmount*12)}/yr</div><input class="sub-input" type="number" value="${sub.monthlyAmount}" inputmode="decimal" data-sub="${sub.id}"/><div style="display:flex;gap:5px;margin-top:6px"><button class="item-action-btn edit" style="flex:1;padding:5px 4px;font-size:10px" data-edit="${sub.id}" data-listkey="subscriptions">Edit</button><button class="item-action-btn delete" style="flex:1;padding:5px 4px;font-size:10px" data-delete="${sub.id}" data-listkey="subscriptions">Delete</button></div></div>`).join("")}
   </div>
   <button class="add-btn" data-addlist="subscriptions">+ Add Subscription</button>
-  <div class="card" style="margin-top:10px">
-    <div class="card-title">Annual Total</div>
-    <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:600"><span style="color:var(--text3)">Monthly</span><span style="font-weight:800;color:var(--teal)">${php(tSubs)}</span></div>
-    <div style="display:flex;justify-content:space-between;font-size:14px;margin-top:8px;font-weight:600"><span style="color:var(--text3)">Yearly</span><span style="font-weight:800;color:var(--purple)">${php(tSubs*12)}</span></div>
-  </div>`;
+  <div class="card" style="margin-top:10px"><div class="card-title">Annual Total</div><div style="display:flex;justify-content:space-between;font-size:14px;font-weight:600"><span style="color:var(--text3)">Monthly</span><span style="font-weight:800;color:var(--teal)">${php(tSubs)}</span></div><div style="display:flex;justify-content:space-between;font-size:14px;margin-top:8px;font-weight:600"><span style="color:var(--text3)">Yearly</span><span style="font-weight:800;color:var(--purple)">${php(tSubs*12)}</span></div></div>`;
 }
-
 function buildCCSettings(mi){
-  const s=getCCSettings();
-  const cards=["BPI","RCBC","UB"];
-  const cardColors={BPI:"var(--bpi)",RCBC:"var(--rcbc)",UB:"var(--ub)"};
-  const today=new Date().getDate();
+  const s=getCCSettings();const cards=["BPI","RCBC","UB"];const cardColors={BPI:"var(--bpi)",RCBC:"var(--rcbc)",UB:"var(--ub)"};const today=new Date().getDate();
   return`
   <div class="section-header"><div class="section-title">Credit Card Settings</div><div class="section-meta">${MONTHS[mi]} ${state.year}</div></div>
-  <div style="background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.25);border-radius:12px;padding:10px 12px;margin-bottom:12px;font-size:11px;color:#92400e;font-weight:500;">
-    💡 Set each card's <strong>cutoff date</strong>. Charges on or before the cutoff are billed to the current month. Charges after the cutoff are billed to the <em>next</em> month.
-  </div>
-  ${cards.map(bank=>{
-    const cfg=s[bank];
-    const charges=cardChargesForMonth(bank,mi);
-    const minPay=calcMinPayment(bank,charges);
-    const cutoffOrd=cfg.cutoff+(cfg.cutoff===1?"st":cfg.cutoff===2?"nd":cfg.cutoff===3?"rd":"th");
-    const billingStatus=today<=cfg.cutoff?"📅 Within cutoff → billing this month":"⏭ After cutoff → billing next month";
-    return`
-    <div class="card" style="border-left:4px solid ${cardColors[bank]};margin-bottom:10px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><div style="font-weight:800;font-size:15px;color:${cardColors[bank]}">${bank}</div><div style="font-size:10px;color:var(--text3);font-weight:600">${billingStatus}</div></div>
-      <div class="form-row" style="margin-bottom:8px;">
-        <div><div class="form-label">Cutoff Day</div><input type="number" min="1" max="31" value="${cfg.cutoff}" inputmode="numeric" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:9px;color:var(--text);padding:8px 10px;font-size:14px;font-weight:700;text-align:center;outline:none;font-family:'Plus Jakarta Sans',sans-serif;" data-ccsetting="${bank}" data-field="cutoff"/></div>
-        <div><div class="form-label">Min Pay %</div><input type="number" min="0" max="100" step="0.5" value="${(cfg.minPayPct*100).toFixed(1)}" inputmode="decimal" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:9px;color:var(--text);padding:8px 10px;font-size:14px;font-weight:700;text-align:center;outline:none;font-family:'Plus Jakarta Sans',sans-serif;" data-ccsetting="${bank}" data-field="minPayPct"/></div>
-      </div>
-      <div style="margin-bottom:8px;"><div class="form-label">Min Pay Flat Amount (₱)</div><input type="number" min="0" value="${cfg.minPayFlat}" inputmode="numeric" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:9px;color:var(--text);padding:8px 10px;font-size:14px;font-weight:700;text-align:center;outline:none;font-family:'Plus Jakarta Sans',sans-serif;" data-ccsetting="${bank}" data-field="minPayFlat"/></div>
-      ${charges>0?`<div style="background:rgba(108,63,197,.06);border:1px solid rgba(108,63,197,.12);border-radius:9px;padding:9px 11px;"><div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="font-size:11px;color:var(--text3);font-weight:700;">CARD CHARGES ${MONTHS[mi].toUpperCase()}</span><span style="font-size:13px;font-weight:800;color:var(--purple)">${php(charges)}</span></div><div style="display:flex;justify-content:space-between;margin-top:6px;padding-top:5px;border-top:1px solid rgba(108,63,197,.12);"><span style="font-size:11px;color:#92400e;font-weight:700;">⚠️ MIN. PAYMENT DUE</span><span style="font-size:13px;font-weight:800;color:#b45309">${php(minPay)}</span></div></div>`:`<div style="font-size:11px;color:var(--text4);text-align:center;padding:8px 0;">No charges this month</div>`}
-    </div>`;
-  }).join("")}
+  <div style="background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.25);border-radius:12px;padding:10px 12px;margin-bottom:12px;font-size:11px;color:#92400e;font-weight:500;">💡 Set each card's <strong>cutoff date</strong>. Charges on or before the cutoff are billed to the current month. Charges after the cutoff are billed to the <em>next</em> month.</div>
+  ${cards.map(bank=>{const cfg=s[bank];const charges=cardChargesForMonth(bank,mi);const minPay=calcMinPayment(bank,charges);const cutoffOrd=cfg.cutoff+(cfg.cutoff===1?"st":cfg.cutoff===2?"nd":cfg.cutoff===3?"rd":"th");const billingStatus=today<=cfg.cutoff?"📅 Within cutoff → billing this month":"⏭ After cutoff → billing next month";return`<div class="card" style="border-left:4px solid ${cardColors[bank]};margin-bottom:10px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><div style="font-weight:800;font-size:15px;color:${cardColors[bank]}">${bank}</div><div style="font-size:10px;color:var(--text3);font-weight:600">${billingStatus}</div></div><div class="form-row" style="margin-bottom:8px;"><div><div class="form-label">Cutoff Day</div><input type="number" min="1" max="31" value="${cfg.cutoff}" inputmode="numeric" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:9px;color:var(--text);padding:8px 10px;font-size:14px;font-weight:700;text-align:center;outline:none;font-family:'Plus Jakarta Sans',sans-serif;" data-ccsetting="${bank}" data-field="cutoff"/></div><div><div class="form-label">Min Pay %</div><input type="number" min="0" max="100" step="0.5" value="${(cfg.minPayPct*100).toFixed(1)}" inputmode="decimal" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:9px;color:var(--text);padding:8px 10px;font-size:14px;font-weight:700;text-align:center;outline:none;font-family:'Plus Jakarta Sans',sans-serif;" data-ccsetting="${bank}" data-field="minPayPct"/></div></div><div style="margin-bottom:8px;"><div class="form-label">Min Pay Flat Amount (₱)</div><input type="number" min="0" value="${cfg.minPayFlat}" inputmode="numeric" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:9px;color:var(--text);padding:8px 10px;font-size:14px;font-weight:700;text-align:center;outline:none;font-family:'Plus Jakarta Sans',sans-serif;" data-ccsetting="${bank}" data-field="minPayFlat"/></div>${charges>0?`<div style="background:rgba(108,63,197,.06);border:1px solid rgba(108,63,197,.12);border-radius:9px;padding:9px 11px;"><div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="font-size:11px;color:var(--text3);font-weight:700;">CARD CHARGES ${MONTHS[mi].toUpperCase()}</span><span style="font-size:13px;font-weight:800;color:var(--purple)">${php(charges)}</span></div><div style="display:flex;justify-content:space-between;margin-top:6px;padding-top:5px;border-top:1px solid rgba(108,63,197,.12);"><span style="font-size:11px;color:#92400e;font-weight:700;">⚠️ MIN. PAYMENT DUE</span><span style="font-size:13px;font-weight:800;color:#b45309">${php(minPay)}</span></div></div>`:`<div style="font-size:11px;color:var(--text4);text-align:center;padding:8px 0;">No charges this month</div>`}</div>`;}).join("")}
   <div class="hint">💡 Cutoff settings are saved automatically.</div>`;
 }
 
 // =====================================================================
-// IMPORT HANDLER (shared function used by both settings and empty state)
+// DEBT SECTION BUILD
+// =====================================================================
+function buildDebtSection(){
+  const total=totalDebt();const minPmt=totalMinPayment();const dff=calcDebtFreeDate();
+  const activeDebts=(state.debts||[]).filter(d=>d.balance>0).length;
+  return`
+  <div class="debt-section">
+  <div class="debt-header">
+    <div class="debt-header-top">
+      <div class="debt-logo">💳 Debt Tracker</div>
+      <button class="settings-btn" style="background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.25);" id="btnDebtSettings">⚙️</button>
+    </div>
+    <div class="debt-summary-row">
+      <div class="debt-summary-box">
+        <div class="debt-summary-label">Total Debt</div>
+        <div class="debt-summary-value">${total>0?phpShort(total):"₱0"}</div>
+        <div class="debt-summary-sub">${activeDebts} active</div>
+      </div>
+      <div class="debt-summary-box">
+        <div class="debt-summary-label">Monthly Min</div>
+        <div class="debt-summary-value">${minPmt>0?phpShort(minPmt):"—"}</div>
+        <div class="debt-summary-sub">min payments</div>
+      </div>
+      <div class="debt-summary-box">
+        <div class="debt-summary-label">Debt-Free</div>
+        <div class="debt-summary-value" style="font-size:12px">${dff?dff.date:"—"}</div>
+        <div class="debt-summary-sub">${dff?dff.months+"mo away":"add debts"}</div>
+      </div>
+    </div>
+  </div>
+  <div class="debt-nav">
+    <button class="debt-nav-btn${state.debtView==="overview"?" active":""}" data-debtview="overview">Overview</button>
+    <button class="debt-nav-btn${state.debtView==="plan"?" active":""}" data-debtview="plan">Payoff Plan</button>
+    <button class="debt-nav-btn${state.debtView==="milestones"?" active":""}" data-debtview="milestones">Milestones</button>
+  </div>
+  <div class="debt-content">${buildDebtView()}</div>
+  ${buildDebtModal()}
+  </div>`;
+}
+
+function buildDebtView(){
+  switch(state.debtView){
+    case"overview":return buildDebtOverview();
+    case"plan":return buildPayoffPlan();
+    case"milestones":return buildMilestones();
+    default:return"";
+  }
+}
+
+function buildDebtOverview(){
+  const debts=state.debts||[];
+  const sorted=getPayoffOrder();
+  const paidOff=debts.filter(d=>d.balance<=0);
+  return`
+  <div class="strategy-row">
+    <button class="strategy-btn${state.debtStrategy==="snowball"?" active":""}" data-strategy="snowball">
+      <span class="strat-icon">⛄</span>
+      <span class="strat-name">Snowball</span>
+      Smallest first
+    </button>
+    <button class="strategy-btn${state.debtStrategy==="avalanche"?" active":""}" data-strategy="avalanche">
+      <span class="strat-icon">🏔️</span>
+      <span class="strat-name">Avalanche</span>
+      Highest rate first
+    </button>
+  </div>
+  ${debts.filter(d=>d.balance>0).length===0&&paidOff.length===0?`
+  <div class="empty-state" style="padding:30px 24px;">
+    <div class="empty-icon">📉</div>
+    <div class="empty-title">No Debts Added</div>
+    <div class="empty-desc">Track all your debts in one place — credit cards, loans, and more. Know your exact debt-free date.</div>
+  </div>`:""}
+  ${sorted.map((debt,idx)=>{
+    const pct=debt.originalAmount>0?Math.min(100,((debt.originalAmount-debt.balance)/debt.originalAmount)*100):0;
+    const months=calcPayoffMonthsFor(debt);
+    const isFirst=idx===0;
+    return`
+    <div class="debt-item${isFirst?" next-target":""}">
+      ${isFirst?`<div class="next-target-badge">🎯 Pay Off Next</div>`:""}
+      <div class="debt-item-header">
+        <div>
+          <div class="debt-item-name">${debt.name}</div>
+          <div class="debt-item-type">${debt.type||"Debt"} · ${debt.rate}% p.a.</div>
+        </div>
+        <div class="debt-item-balance">
+          <div class="debt-item-balance-val">${php(debt.balance)}</div>
+          <div class="debt-item-balance-label">remaining</div>
+        </div>
+      </div>
+      <div class="debt-progress-bar"><div class="debt-progress-fill" style="width:${pct}%"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text4);margin-bottom:8px;">
+        <span>${pct.toFixed(0)}% paid off</span>
+        <span>Original: ${php(debt.originalAmount||debt.balance)}</span>
+      </div>
+      <div class="debt-stats-row">
+        <div class="debt-stat"><div class="debt-stat-label">Min. Pay</div><div class="debt-stat-value">${php(debt.minPayment)}/mo</div></div>
+        <div class="debt-stat"><div class="debt-stat-label">Interest</div><div class="debt-stat-value">${debt.rate}% p.a.</div></div>
+        <div class="debt-stat"><div class="debt-stat-label">Paid Off</div><div class="debt-stat-value">${months<999?getPayoffDate(months):"∞"}</div></div>
+      </div>
+      <div class="debt-item-actions">
+        <button class="item-action-btn paid-btn" data-debtpaid="${debt.id}">✓ Mark Paid Off</button>
+        <button class="item-action-btn edit" data-debtedit="${debt.id}">Edit</button>
+        <button class="item-action-btn delete" data-debtdelete="${debt.id}">Delete</button>
+      </div>
+    </div>`;
+  }).join("")}
+  ${paidOff.length>0?`
+  <div class="card" style="margin-top:4px;">
+    <div class="card-title">✅ Paid Off (${paidOff.length})</div>
+    ${paidOff.map(d=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px;"><span style="color:var(--text2);font-weight:600">${d.name}</span><span style="color:var(--green);font-weight:800">🎉 Paid Off!</span></div>`).join("")}
+  </div>`:""}
+  <button class="debt-add-btn" id="btnDebtAdd">+ Add Debt</button>`;
+}
+
+function buildPayoffPlan(){
+  const debts=state.debts||[];
+  if(debts.filter(d=>d.balance>0).length===0){
+    return`<div class="empty-state" style="padding:30px 24px;"><div class="empty-icon">📋</div><div class="empty-title">No Active Debts</div><div class="empty-desc">Add your debts in the Overview tab to generate a personalized payoff plan.</div></div>`;
+  }
+  const dff=calcDebtFreeDate();
+  const order=getPayoffOrder();
+  const extra=state.debtExtraPayment||0;
+  return`
+  <div class="${dff?"debt-free-banner":"debt-free-banner"}">
+    <div class="debt-free-label">🎯 Estimated Debt-Free Date</div>
+    <div class="debt-free-date">${dff?dff.date:"Can't calculate"}</div>
+    <div class="debt-free-sub">${dff?`${dff.months} months from now using ${state.debtStrategy} method`:"Check minimum payments"}</div>
+  </div>
+  <div class="extra-payment-box">
+    <div class="extra-payment-label">Extra Monthly Payment</div>
+    <input class="extra-payment-input" type="number" inputmode="decimal" id="extraPaymentInput" value="${extra||""}" placeholder="₱0"/>
+    <div class="extra-hint">Adding extra monthly payments can dramatically reduce your payoff time</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Payoff Order — ${state.debtStrategy==="snowball"?"⛄ Snowball":"🏔️ Avalanche"}</div>
+    ${order.map((debt,i)=>{
+      const months=calcPayoffMonthsFor(debt);
+      return`
+      <div class="payoff-plan-row">
+        <div class="payoff-order">${i+1}</div>
+        <div class="payoff-plan-info">
+          <div class="payoff-plan-name">${debt.name}</div>
+          <div class="payoff-plan-meta">${php(debt.balance)} · ${debt.rate}% · ${php(debt.minPayment)}/mo min</div>
+        </div>
+        <div class="payoff-plan-date">${months<999?getPayoffDate(months):"∞"}</div>
+      </div>`;
+    }).join("")}
+  </div>
+  <div class="card" style="margin-top:0">
+    <div class="card-title">Summary</div>
+    <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px solid var(--border)"><span style="color:var(--text3);font-weight:600">Total Debt</span><span style="font-weight:800;color:#dc2626">${php(totalDebt())}</span></div>
+    <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px solid var(--border)"><span style="color:var(--text3);font-weight:600">Total Min Payments</span><span style="font-weight:800">${php(totalMinPayment())}/mo</span></div>
+    <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;"><span style="color:var(--text3);font-weight:600">Extra Payment</span><span style="font-weight:800;color:var(--green)">${php(extra)}/mo</span></div>
+  </div>`;
+}
+
+function buildMilestones(){
+  const debts=state.debts||[];
+  const total=totalDebt();
+  const originalTotal=debts.reduce((s,d)=>s+(d.originalAmount||d.balance),0);
+  const paidTotal=originalTotal-total;
+  const paidPct=originalTotal>0?(paidTotal/originalTotal)*100:0;
+  const paidOffCount=debts.filter(d=>d.balance<=0).length;
+
+  const milestones=[
+    {icon:"🎯",title:"First Debt Added",desc:"You've taken the first step to becoming debt-free!",done:debts.length>0},
+    {icon:"💡",title:"Strategy Chosen",desc:"You've selected your payoff strategy.",done:debts.length>0},
+    {icon:"🌱",title:"10% Paid Off",desc:"You've paid off 10% of your total debt.",done:paidPct>=10},
+    {icon:"🔥",title:"25% Paid Off",desc:"A quarter of your debt is gone!",done:paidPct>=25},
+    {icon:"⚡",title:"First Debt Cleared",desc:"You've completely paid off a debt!",done:paidOffCount>=1},
+    {icon:"🏆",title:"50% Paid Off",desc:"Halfway there — amazing progress!",done:paidPct>=50},
+    {icon:"💎",title:"75% Paid Off",desc:"Almost there — you're in the final stretch!",done:paidPct>=75},
+    {icon:"🎉",title:"Debt-Free!",desc:"You've paid off ALL your debts!",done:debts.length>0&&debts.every(d=>d.balance<=0)},
+  ];
+
+  return`
+  <div class="card">
+    <div class="card-title">Your Progress</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <span style="font-size:13px;font-weight:700;color:var(--text2)">Overall ${paidPct.toFixed(0)}% paid off</span>
+      <span style="font-size:13px;font-weight:800;color:var(--green)">${php(paidTotal)} cleared</span>
+    </div>
+    <div class="debt-progress-bar" style="height:10px;margin-bottom:4px;"><div class="debt-progress-fill" style="width:${paidPct}%"></div></div>
+    <div style="font-size:10px;color:var(--text4);text-align:right">${php(total)} remaining</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Milestones</div>
+    ${milestones.map(m=>`
+    <div class="milestone-item" style="${m.done?"":"opacity:.4"}">
+      <div class="milestone-icon">${m.icon}</div>
+      <div class="milestone-info">
+        <div class="milestone-title">${m.title}</div>
+        <div class="milestone-desc">${m.desc}</div>
+      </div>
+      <div class="milestone-check">${m.done?"✅":"⬜"}</div>
+    </div>`).join("")}
+  </div>`;
+}
+
+// =====================================================================
+// IMPORT/EXPORT HANDLER
 // =====================================================================
 function handleImportFile(file){
   if(!file)return;
@@ -851,19 +1065,10 @@ function handleImportFile(file){
     try{
       const d=JSON.parse(ev.target.result);
       if(!confirm(`Import data from ${file.name}?\nThis will replace your current budget data.`)){return;}
-      if(d.version===2&&d.yearData){
-        state.yearData=d.yearData;
-        state.subscriptions=d.subscriptions||state.subscriptions;
-        state.paid=d.paid||{};
-        if(d.ccSettings)state.ccSettings=d.ccSettings;
-      } else if(d.items15&&d.items30){
-        const y=String(state.year);
-        state.yearData[y]={items15:d.items15,items30:d.items30,installments:d.installments||[],income15:d.income15||0,income30:d.income30||0};
-        state.subscriptions=d.subscriptions||state.subscriptions;
-        state.paid=d.paid||{};
-      } else {throw new Error("Invalid format");}
-      state.hasData=true;
-      save();render();
+      if(d.version===2&&d.yearData){state.yearData=d.yearData;state.subscriptions=d.subscriptions||state.subscriptions;state.paid=d.paid||{};if(d.ccSettings)state.ccSettings=d.ccSettings;if(d.debts)state.debts=d.debts;}
+      else if(d.items15&&d.items30){const y=String(state.year);state.yearData[y]={items15:d.items15,items30:d.items30,installments:d.installments||[],income15:d.income15||0,income30:d.income30||0};state.subscriptions=d.subscriptions||state.subscriptions;state.paid=d.paid||{};}
+      else{throw new Error("Invalid format");}
+      state.hasData=true;save();render();
     }catch(err){alert("Failed to import: "+err.message);}
   };
   reader.readAsText(file);
@@ -875,175 +1080,154 @@ function handleImportFile(file){
 function attachEvents(){
   const importInput=document.getElementById("importFileInput");
 
-  // Empty state buttons
-  const emptyImport=document.getElementById("emptyImportBtn");
-  if(emptyImport)emptyImport.addEventListener("click",()=>importInput&&importInput.click());
+  // App-level tab switching
+  document.querySelectorAll("[data-apptab]").forEach(el=>el.addEventListener("click",()=>{state.appTab=el.dataset.apptab;save();render();}));
 
-  const emptySkip=document.getElementById("emptySkipBtn");
-  if(emptySkip)emptySkip.addEventListener("click",()=>{state.hasData=true;save();render();});
+  // Debt nav
+  document.querySelectorAll("[data-debtview]").forEach(el=>el.addEventListener("click",()=>{state.debtView=el.dataset.debtview;render();}));
+
+  // Strategy
+  document.querySelectorAll("[data-strategy]").forEach(el=>el.addEventListener("click",()=>{state.debtStrategy=el.dataset.strategy;save();render();}));
+
+  // Extra payment
+  const extraInput=document.getElementById("extraPaymentInput");
+  if(extraInput){
+    extraInput.addEventListener("change",e=>{state.debtExtraPayment=parseFloat(e.target.value)||0;save();render();});
+    extraInput.addEventListener("blur",e=>{state.debtExtraPayment=parseFloat(e.target.value)||0;save();render();});
+  }
+
+  // Debt settings button (show a simple action sheet)
+  const btnDebtSettings=document.getElementById("btnDebtSettings");
+  if(btnDebtSettings)btnDebtSettings.addEventListener("click",()=>{
+    const choice=confirm("Export debt data?\n\nOK = Export JSON\nCancel = Reset all debts (cannot be undone)");
+    if(choice){
+      const exportData={version:2,exportedAt:new Date().toISOString(),debts:state.debts,debtStrategy:state.debtStrategy,debtExtraPayment:state.debtExtraPayment};
+      const blob=new Blob([JSON.stringify(exportData,null,2)],{type:"application/json"});
+      const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;
+      const d=new Date();a.download=`Debts_${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}.json`;
+      a.click();URL.revokeObjectURL(url);
+    } else {
+      if(confirm("Are you sure you want to clear ALL debt data? This cannot be undone.")){
+        state.debts=[];state.debtExtraPayment=0;state.debtStrategy="snowball";save();render();
+      }
+    }
+  });
+
+  // Debt add/edit/delete
+  const btnDebtAdd=document.getElementById("btnDebtAdd");
+  if(btnDebtAdd)btnDebtAdd.addEventListener("click",openDebtAdd);
+
+  document.querySelectorAll("[data-debtedit]").forEach(el=>el.addEventListener("click",()=>openDebtEdit(el.dataset.debtedit)));
+  document.querySelectorAll("[data-debtdelete]").forEach(el=>el.addEventListener("click",()=>deleteDebt(el.dataset.debtdelete)));
+  document.querySelectorAll("[data-debtpaid]").forEach(el=>el.addEventListener("click",()=>markDebtPaid(el.dataset.debtpaid)));
+
+  // Debt modal
+  const debtModalSave=document.getElementById("debtModalSave");if(debtModalSave)debtModalSave.addEventListener("click",saveDebtModal);
+  const debtModalCancel=document.getElementById("debtModalCancel");if(debtModalCancel)debtModalCancel.addEventListener("click",closeDebtModal);
+  const debtModalOverlay=document.getElementById("debtModalOverlay");if(debtModalOverlay)debtModalOverlay.addEventListener("click",e=>{if(e.target===debtModalOverlay)closeDebtModal();});
+
+  // Empty state
+  const emptyImport=document.getElementById("emptyImportBtn");if(emptyImport)emptyImport.addEventListener("click",()=>importInput&&importInput.click());
+  const emptySkip=document.getElementById("emptySkipBtn");if(emptySkip)emptySkip.addEventListener("click",()=>{state.hasData=true;save();render();});
 
   // Year selector
-  const ySel=document.getElementById("yearSelect");
-  if(ySel)ySel.addEventListener("change",e=>{state.year=parseInt(e.target.value);getYearData(state.year);state.editCell=null;save();render();});
+  const ySel=document.getElementById("yearSelect");if(ySel)ySel.addEventListener("change",e=>{state.year=parseInt(e.target.value);getYearData(state.year);state.editCell=null;save();render();});
 
   // CC summary toggles
-  document.querySelectorAll("[data-cctoggle]").forEach(btn=>{
-    btn.addEventListener("click",()=>{
-      const id=btn.dataset.cctoggle;
-      const panel=document.getElementById("ccpanel_"+id);
-      const chev=document.getElementById("chev_"+id);
-      if(!panel)return;
-      const isOpen=panel.classList.toggle("open");
-      if(chev)chev.style.transform=isOpen?"rotate(180deg)":"";
-    });
-  });
+  document.querySelectorAll("[data-cctoggle]").forEach(btn=>{btn.addEventListener("click",()=>{const id=btn.dataset.cctoggle;const panel=document.getElementById("ccpanel_"+id);const chev=document.getElementById("chev_"+id);if(!panel)return;const isOpen=panel.classList.toggle("open");if(chev)chev.style.transform=isOpen?"rotate(180deg)":"";});});
 
   document.querySelectorAll("[data-month]").forEach(el=>el.addEventListener("click",()=>{state.month=+el.dataset.month;state.editCell=null;state.settingsOpen=false;save();render();}));
   document.querySelectorAll("[data-view]").forEach(el=>el.addEventListener("click",()=>{state.view=el.dataset.view;state.editCell=null;state.settingsOpen=false;save();render();}));
 
-  const i15=document.getElementById("inc15");
-  if(i15)i15.addEventListener("change",e=>{getYearData(state.year).income15=parseFloat(e.target.value)||0;save();render();});
-  const i30=document.getElementById("inc30");
-  if(i30)i30.addEventListener("change",e=>{getYearData(state.year).income30=parseFloat(e.target.value)||0;save();render();});
+  const i15=document.getElementById("inc15");if(i15)i15.addEventListener("change",e=>{getYearData(state.year).income15=parseFloat(e.target.value)||0;save();render();});
+  const i30=document.getElementById("inc30");if(i30)i30.addEventListener("change",e=>{getYearData(state.year).income30=parseFloat(e.target.value)||0;save();render();});
+  const iEdit=document.getElementById("incEdit");if(iEdit)iEdit.addEventListener("change",e=>{const yd=getYearData(state.year);if(e.target.dataset.which==="15th")yd.income15=parseFloat(e.target.value)||0;else yd.income30=parseFloat(e.target.value)||0;save();render();});
 
-  const iEdit=document.getElementById("incEdit");
-  if(iEdit)iEdit.addEventListener("change",e=>{
-    const yd=getYearData(state.year);
-    if(e.target.dataset.which==="15th")yd.income15=parseFloat(e.target.value)||0;
-    else yd.income30=parseFloat(e.target.value)||0;
-    save();render();
-  });
-
-  const btnSettings=document.getElementById("btnSettings");
-  if(btnSettings)btnSettings.addEventListener("click",()=>{state.settingsOpen=!state.settingsOpen;render();});
-  const settingsOverlay=document.getElementById("settingsOverlay");
-  if(settingsOverlay)settingsOverlay.addEventListener("click",e=>{if(e.target===settingsOverlay){state.settingsOpen=false;render();}});
-
-  const btnHideIncome=document.getElementById("btnHideIncome");
-  if(btnHideIncome)btnHideIncome.addEventListener("click",()=>{state.hideIncome=!state.hideIncome;save();render();});
+  const btnSettings=document.getElementById("btnSettings");if(btnSettings)btnSettings.addEventListener("click",()=>{state.settingsOpen=!state.settingsOpen;render();});
+  const settingsOverlay=document.getElementById("settingsOverlay");if(settingsOverlay)settingsOverlay.addEventListener("click",e=>{if(e.target===settingsOverlay){state.settingsOpen=false;render();}});
+  const btnHideIncome=document.getElementById("btnHideIncome");if(btnHideIncome)btnHideIncome.addEventListener("click",()=>{state.hideIncome=!state.hideIncome;save();render();});
 
   // Settings items
-  const sImport=document.getElementById("settingsImport");
-  if(sImport)sImport.addEventListener("click",()=>{state.settingsOpen=false;render();setTimeout(()=>importInput&&importInput.click(),50);});
-
-  const sExport=document.getElementById("settingsExport");
-  if(sExport)sExport.addEventListener("click",()=>{
+  const sImport=document.getElementById("settingsImport");if(sImport)sImport.addEventListener("click",()=>{state.settingsOpen=false;render();setTimeout(()=>importInput&&importInput.click(),50);});
+  const sExport=document.getElementById("settingsExport");if(sExport)sExport.addEventListener("click",()=>{
     state.settingsOpen=false;render();
-    const exportData={version:2,exportedAt:new Date().toISOString(),yearData:state.yearData,subscriptions:state.subscriptions,paid:state.paid,ccSettings:state.ccSettings};
+    const exportData={version:2,exportedAt:new Date().toISOString(),yearData:state.yearData,subscriptions:state.subscriptions,paid:state.paid,ccSettings:state.ccSettings,debts:state.debts};
     const blob=new Blob([JSON.stringify(exportData,null,2)],{type:"application/json"});
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement("a");a.href=url;
-    const d=new Date();
-    a.download=`Budget Tracker_${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}.json`;
+    const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;
+    const d=new Date();a.download=`Budget Tracker_${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}.json`;
     a.click();URL.revokeObjectURL(url);
   });
-
-  const sCC=document.getElementById("settingsCC");
-  if(sCC)sCC.addEventListener("click",()=>{state.settingsOpen=false;state.view="ccsettings";save();render();});
-
-  const sReset=document.getElementById("settingsReset");
-  if(sReset)sReset.addEventListener("click",()=>{
+  const sCC=document.getElementById("settingsCC");if(sCC)sCC.addEventListener("click",()=>{state.settingsOpen=false;state.view="ccsettings";save();render();});
+  const sReset=document.getElementById("settingsReset");if(sReset)sReset.addEventListener("click",()=>{
     if(!confirm("Clear ALL data and reset?\n\nThis cannot be undone. Export first if you want a backup."))return;
     localStorage.removeItem("bph4");
-    state={month:getCurrentMonthIndex(),year:getCurrentYear(),view:"dashboard",yearData:{},subscriptions:[],paid:{},editCell:null,hideIncome:false,modal:null,settingsOpen:false,ccSettings:JSON.parse(JSON.stringify(DEFAULT_CC_SETTINGS)),hasData:false};
-    getYearData(state.year);
-    save();render();
+    state={appTab:"expense",month:getCurrentMonthIndex(),year:getCurrentYear(),view:"dashboard",yearData:{},subscriptions:[],paid:{},editCell:null,hideIncome:false,modal:null,settingsOpen:false,ccSettings:JSON.parse(JSON.stringify(DEFAULT_CC_SETTINGS)),hasData:false,debts:[],debtStrategy:"snowball",debtExtraPayment:0,debtView:"overview",debtModal:null};
+    getYearData(state.year);save();render();
   });
+  if(importInput)importInput.addEventListener("change",e=>{const file=e.target.files[0];if(file)handleImportFile(file);importInput.value="";});
 
-  // Import file input
-  if(importInput)importInput.addEventListener("change",e=>{
-    const file=e.target.files[0];
-    if(file)handleImportFile(file);
-    importInput.value="";
-  });
-
-  document.querySelectorAll("[data-paid]").forEach(el=>{
-    el.addEventListener("click",()=>togglePaid(el.dataset.paid,+el.dataset.mi));
-  });
-
-  document.querySelectorAll("[data-editcell]").forEach(el=>el.addEventListener("click",()=>{
-    state.editCell=el.dataset.editcell;render();
-    setTimeout(()=>{
-      const parts=el.dataset.editcell.split("_");
-      const inp=document.getElementById("editInput_"+parts[0]);
-      if(inp){inp.focus();inp.select();}
-    },50);
-  }));
-
+  document.querySelectorAll("[data-paid]").forEach(el=>{el.addEventListener("click",()=>togglePaid(el.dataset.paid,+el.dataset.mi));});
+  document.querySelectorAll("[data-editcell]").forEach(el=>el.addEventListener("click",()=>{state.editCell=el.dataset.editcell;render();setTimeout(()=>{const parts=el.dataset.editcell.split("_");const inp=document.getElementById("editInput_"+parts[0]);if(inp){inp.focus();inp.select();}},50);}));
   document.querySelectorAll(".amt-edit").forEach(inp=>{
-    const commit=()=>{
-      const {id,list,mi}=inp.dataset;
-      const yd=getYearData(state.year);
-      const listMap={"items15":yd.items15,"items30":yd.items30,"installments":yd.installments};
-      updateAmt(listMap[list]||yd.items15,id,+mi,inp.value);
-      state.editCell=null;save();render();
-    };
-    inp.addEventListener("blur",commit);
-    inp.addEventListener("keydown",e=>{if(e.key==="Enter")commit();if(e.key==="Escape"){state.editCell=null;render();}});
+    const commit=()=>{const {id,list,mi}=inp.dataset;const yd=getYearData(state.year);const listMap={"items15":yd.items15,"items30":yd.items30,"installments":yd.installments};updateAmt(listMap[list]||yd.items15,id,+mi,inp.value);state.editCell=null;save();render();};
+    inp.addEventListener("blur",commit);inp.addEventListener("keydown",e=>{if(e.key==="Enter")commit();if(e.key==="Escape"){state.editCell=null;render();}});
   });
-
-  document.querySelectorAll("[data-sub]").forEach(inp=>{
-    inp.addEventListener("change",e=>{
-      const idx=(state.subscriptions||[]).findIndex(s=>s.id===e.target.dataset.sub);
-      if(idx>-1){state.subscriptions[idx].monthlyAmount=parseFloat(e.target.value)||0;save();render();}
-    });
-  });
-
+  document.querySelectorAll("[data-sub]").forEach(inp=>{inp.addEventListener("change",e=>{const idx=(state.subscriptions||[]).findIndex(s=>s.id===e.target.dataset.sub);if(idx>-1){state.subscriptions[idx].monthlyAmount=parseFloat(e.target.value)||0;save();render();}});});
   document.querySelectorAll("[data-addlist]").forEach(el=>el.addEventListener("click",()=>openAdd(el.dataset.addlist)));
   document.querySelectorAll("[data-edit]").forEach(el=>el.addEventListener("click",()=>openEdit(el.dataset.listkey,el.dataset.edit)));
-  document.querySelectorAll("[data-delete]").forEach(el=>el.addEventListener("click",()=>{
-    if(confirm("Delete this item?")){
-      const lk=el.dataset.listkey;
-      const id=el.dataset.delete;
-      if(lk==="subscriptions"){state.subscriptions=(state.subscriptions||[]).filter(x=>x.id!==id);}
-      else{const yd=getYearData(state.year);yd[lk]=(yd[lk]||[]).filter(x=>x.id!==id);}
-      save();render();
-    }
-  }));
-
+  document.querySelectorAll("[data-delete]").forEach(el=>el.addEventListener("click",()=>{if(confirm("Delete this item?")){const lk=el.dataset.listkey;const id=el.dataset.delete;if(lk==="subscriptions"){state.subscriptions=(state.subscriptions||[]).filter(x=>x.id!==id);}else{const yd=getYearData(state.year);yd[lk]=(yd[lk]||[]).filter(x=>x.id!==id);}save();render();}}));
   const mSave=document.getElementById("modalSave");if(mSave)mSave.addEventListener("click",saveModal);
   const mCancel=document.getElementById("modalCancel");if(mCancel)mCancel.addEventListener("click",closeModal);
-  const mOverlay=document.getElementById("modalOverlay");
-  if(mOverlay)mOverlay.addEventListener("click",e=>{if(e.target===mOverlay)closeModal();});
+  const mOverlay=document.getElementById("modalOverlay");if(mOverlay)mOverlay.addEventListener("click",e=>{if(e.target===mOverlay)closeModal();});
 
   function updateChargeDayVisibility(){
-    const bankSel=document.getElementById("mBank");
-    const cdGroup=document.getElementById("chargeDayGroup");
-    const cdNote=document.getElementById("ccCutoffNote");
-    if(!bankSel||!cdGroup)return;
-    const CC_BANKS=["BPI","RCBC","UB"];
-    const isCC=CC_BANKS.includes(bankSel.value);
+    const bankSel=document.getElementById("mBank");const cdGroup=document.getElementById("chargeDayGroup");const cdNote=document.getElementById("ccCutoffNote");
+    if(!bankSel||!cdGroup)return;const CC_BANKS=["BPI","RCBC","UB"];const isCC=CC_BANKS.includes(bankSel.value);
     cdGroup.style.display=isCC?"block":"none";
-    if(isCC&&cdNote){
-      const cfg=getCCSettings()[bankSel.value];
-      const chargeDay=parseInt(document.getElementById("mChargeDay")?.value)||new Date().getDate();
-      const offset=chargeBillingOffset(bankSel.value,chargeDay);
-      const cutoffOrd=cfg.cutoff+(cfg.cutoff===1?"st":cfg.cutoff===2?"nd":cfg.cutoff===3?"rd":"th");
-      cdNote.style.display="block";
-      cdNote.innerHTML=`💳 <strong>${bankSel.value}</strong> cutoff: <strong>${cutoffOrd}</strong> · Charge day <strong>${chargeDay}</strong> → bills to <strong>${offset===0?"current month":"next month"}</strong>`;
-    } else if(cdNote){cdNote.style.display="none";}
+    if(isCC&&cdNote){const cfg=getCCSettings()[bankSel.value];const chargeDay=parseInt(document.getElementById("mChargeDay")?.value)||new Date().getDate();const offset=chargeBillingOffset(bankSel.value,chargeDay);const cutoffOrd=cfg.cutoff+(cfg.cutoff===1?"st":cfg.cutoff===2?"nd":cfg.cutoff===3?"rd":"th");cdNote.style.display="block";cdNote.innerHTML=`💳 <strong>${bankSel.value}</strong> cutoff: <strong>${cutoffOrd}</strong> · Charge day <strong>${chargeDay}</strong> → bills to <strong>${offset===0?"current month":"next month"}</strong>`;}
+    else if(cdNote){cdNote.style.display="none";}
   }
-  const mBankSel=document.getElementById("mBank");
-  if(mBankSel){mBankSel.addEventListener("change",updateChargeDayVisibility);updateChargeDayVisibility();}
-  const mChgDay=document.getElementById("mChargeDay");
-  if(mChgDay)mChgDay.addEventListener("input",updateChargeDayVisibility);
+  const mBankSel=document.getElementById("mBank");if(mBankSel){mBankSel.addEventListener("change",updateChargeDayVisibility);updateChargeDayVisibility();}
+  const mChgDay=document.getElementById("mChargeDay");if(mChgDay)mChgDay.addEventListener("input",updateChargeDayVisibility);
 
   document.querySelectorAll("[data-ccsetting]").forEach(inp=>{
-    const commit=()=>{
-      const bank=inp.dataset.ccsetting;
-      const field=inp.dataset.field;
-      const s=getCCSettings();
-      if(!s[bank])return;
-      let val=parseFloat(inp.value)||0;
-      if(field==="cutoff")val=Math.max(1,Math.min(31,Math.round(val)));
-      if(field==="minPayPct")val=Math.max(0,Math.min(100,val))/100;
-      if(field==="minPayFlat")val=Math.max(0,val);
-      s[bank][field]=val;
-      state.ccSettings=s;
+    const commit=()=>{const bank=inp.dataset.ccsetting;const field=inp.dataset.field;const s=getCCSettings();if(!s[bank])return;let val=parseFloat(inp.value)||0;if(field==="cutoff")val=Math.max(1,Math.min(31,Math.round(val)));if(field==="minPayPct")val=Math.max(0,Math.min(100,val))/100;if(field==="minPayFlat")val=Math.max(0,val);s[bank][field]=val;state.ccSettings=s;save();render();};
+    inp.addEventListener("change",commit);inp.addEventListener("keydown",e=>{if(e.key==="Enter")commit();});
+  });
+
+  // Reorder button toggle
+  const btnReorder=document.getElementById("btnReorder");
+  if(btnReorder){
+    btnReorder.addEventListener("click",()=>{
+      state.reorderMode=!state.reorderMode;
       save();render();
-    };
-    inp.addEventListener("change",commit);
-    inp.addEventListener("keydown",e=>{if(e.key==="Enter")commit();});
+    });
+  }
+
+  // Move up/down buttons
+  document.querySelectorAll("[data-moveup]").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      const id=btn.dataset.moveup;const lk=btn.dataset.listkey;
+      const yd=getYearData(state.year);
+      const list=lk==="subscriptions"?state.subscriptions:yd[lk];
+      if(!list)return;
+      const idx=list.findIndex(x=>x.id===id);
+      if(idx<=0)return;
+      [list[idx-1],list[idx]]=[list[idx],list[idx-1]];
+      save();render();
+    });
+  });
+  document.querySelectorAll("[data-movedown]").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      const id=btn.dataset.movedown;const lk=btn.dataset.listkey;
+      const yd=getYearData(state.year);
+      const list=lk==="subscriptions"?state.subscriptions:yd[lk];
+      if(!list)return;
+      const idx=list.findIndex(x=>x.id===id);
+      if(idx===-1||idx>=list.length-1)return;
+      [list[idx],list[idx+1]]=[list[idx+1],list[idx]];
+      save();render();
+    });
   });
 }
 
